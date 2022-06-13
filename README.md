@@ -27,3 +27,15 @@
     └── rs # rust后端
         └── Dockerfile
 ```
+
+# 前端开发
+VSCode 请以 fe 目录为根目录,保证插件的正常运行
+
+请使用 `yarn` 进行包管理
+
+运行 `yarn` 安装依赖
+
+运行 `yarn dev` 开启开发服务器
+
+修改代理服务器,请修改`fe/config/proxy.ts` 文件 
+请使用`git update-index --skip-worktree fe/config/proxy.ts` 命令,避免代理服务器配置被git追踪
