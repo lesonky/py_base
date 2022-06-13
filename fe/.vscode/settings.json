@@ -1,0 +1,14 @@
+{
+  "i18n-ally.localesPaths": [
+    "src/locale",
+    "src/components/message-box/locale",
+    "src/views/login/locale",
+    "src/views/dashboard/workplace/locale"
+  ],
+  "i18n-ally.enabledParsers": ["js", "ts"],
+  "i18n-ally.sourceLanguage": "zh-CN",
+  "i18n-ally.displayLanguage": "zh-CN",
+  "i18n-ally.dirStructure": "auto",
+  "i18n-ally.editor.preferEditor": true,
+  "i18n-ally.translate.deepl.useFreeApiEntry": true
+}
