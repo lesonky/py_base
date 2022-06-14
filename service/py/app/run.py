@@ -25,6 +25,7 @@ def register_blueprints(app):
         if bp is not None:
             app.register_blueprint(
                 bp, url_prefix=f"/api{bp.url_prefix if bp.url_prefix else ''}")
+    print(app.url_map)
 
 
 def handle_marshmallow_validate_error(e: ValidationError):
@@ -35,8 +36,10 @@ def handle_marshmallow_validate_error(e: ValidationError):
 
 
 def register_error_handler(app):
+    from app.utils import result
     app.register_error_handler(ValidationError,
                                handle_marshmallow_validate_error)
+    result.register_error_handler(app)
 
 
 def register_cmds(app):

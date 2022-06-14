@@ -67,7 +67,7 @@ FLASK_ENV=development FLASK_APP=app/run.py flask run
 数据库schema升级, 自动生成migration 文件
 
 ```bash
-FLASK_ENV=development FLASK_APP=app/run.py flask db migration -m "init datbase schema"
+FLASK_ENV=development FLASK_APP=app/run.py flask db migration -m "init database schema"
 ```
 
 使用migration文件，升级数据库
@@ -82,7 +82,7 @@ FLASK_ENV=development FLASK_APP=app/run.py flask user_admin create_admin user_na
 ```
 
 pytest 单元测试
-```
+```bash
 py.test
 ```
 

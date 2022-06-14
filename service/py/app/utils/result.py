@@ -1,14 +1,11 @@
 from flask import jsonify
+from sqlalchemy.sql.roles import ExpressionElementRole
 
 
 def ok(result=None):
-    data = {
-        "success": True,
-        "code": 0,
-        "message": "ok",
-    }
+    data = {"success": True, "code": 0, "message": "ok", 'data': {}}
     if result:
-        data['result'] = result
+        data['data'] = result
     return jsonify(data)
 
 
@@ -20,11 +17,35 @@ def err(code=400, message="", status_code=400):
     }), status_code
 
 
-class BadParam(Exception):
+class ErrWithCodeMsg(Exception):
+
+    def __init__(self, status_code, code, msg):
+        self.code = code
+        self.msg = msg
+        self.status_code = status_code
+
+
+class BadParam(ErrWithCodeMsg):
 
     def __init__(self, msg):
-        self.msg = msg
+        super().__init__(status_code=400, code=400, msg=msg)
 
 
-def err_badparam(message=""):
-    return err(code=400, message=message, status_code=400)
+class NoPermission(ErrWithCodeMsg):
+
+    def __init__(self, msg):
+        super().__init__(status_code=403, code=403, msg=msg)
+
+
+class NotFound(ErrWithCodeMsg):
+
+    def __init__(self, msg):
+        super().__init__(status_code=404, code=404, msg=msg)
+
+
+def handle_err_with_code_msg_err(e: ErrWithCodeMsg):
+    return err(status_code=e.status_code, code=e.code, message=e.msg)
+
+
+def register_error_handler(app):
+    app.register_error_handler(ErrWithCodeMsg, handle_err_with_code_msg_err)
