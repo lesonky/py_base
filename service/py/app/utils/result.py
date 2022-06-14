@@ -47,5 +47,11 @@ def handle_err_with_code_msg_err(e: ErrWithCodeMsg):
     return err(status_code=e.status_code, code=e.code, message=e.msg)
 
 
+def handle_exception(e: Exception):
+    # TODO: log the exeption stack for debug
+    return err(status_code=500, code=500, message=str(e))
+
+
 def register_error_handler(app):
     app.register_error_handler(ErrWithCodeMsg, handle_err_with_code_msg_err)
+    app.register_error_handler(Exception, handle_exception)

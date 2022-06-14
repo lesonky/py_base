@@ -30,3 +30,10 @@ def example_empty_data():
     """ For health check.
     """
     return result.ok()
+
+
+@bp.route('/example/exception', methods=['GET'])
+def example_excpetion():
+    """ For health check.
+    """
+    raise Exception("hello, world")
