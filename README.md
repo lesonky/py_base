@@ -39,3 +39,53 @@ VSCode 请以 fe 目录为根目录,保证插件的正常运行
 
 修改代理服务器,请修改`fe/config/proxy.ts` 文件 
 请使用`git update-index --skip-worktree fe/config/proxy.ts` 命令,避免代理服务器配置被git追踪
+
+
+# 后端开发
+
+进入py 目录环境
+
+```bash
+cd ./service/py/
+```
+
+安装pipenv，以及python依赖包
+
+```bash
+pip install pipenv
+pipenv shell
+pipenv install
+```
+
+本地开发,`FlASK_ENV` 指定用的配置文件， 使用configs/development.py为配置文件
+
+```bash
+pipenv shell
+FLASK_ENV=development FLASK_APP=app/run.py flask run
+```
+
+数据库schema升级, 自动生成migration 文件
+
+```bash
+FLASK_ENV=development FLASK_APP=app/run.py flask db migration -m "init datbase schema"
+```
+
+使用migration文件，升级数据库
+
+```bash
+FLASK_ENV=development FLASK_APP=app/run.py flask db upgrade
+```
+创建管理员
+
+```bash
+FLASK_ENV=development FLASK_APP=app/run.py flask user_admin create_admin user_name passwd
+```
+
+pytest 单元测试
+```
+py.test
+```
+
+# docker-compose 部署
+
+# K8s 部署

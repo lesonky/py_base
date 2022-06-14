@@ -1,0 +1,32 @@
+[[source]]
+url = "https://pypi.doubanio.com/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+flask = "*"
+flask-sqlalchemy = "*"
+flask-migrate = "*"
+hobbit-core = {extras = ["hobbit"], version = "*"}
+mypy-extensions = "*"
+flask-marshmallow = "*"
+webargs = "*"
+pytest-cov = "*"
+marshmallow-sqlalchemy = "*"
+flask-login = "*"
+pymysql = "*"
+mysqlclient = "*"
+gunicorn = "*"
+qrcode = "*"
+pillow = "*"
+flask-cors = "*"
+python-docx = "*"
+pyedflib="*"
+pandas = "*"
+
+[dev-packages]
+pytest = "*"
+
+[requires]
+python_version = "3.9"
+
