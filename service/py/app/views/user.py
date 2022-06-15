@@ -1,31 +1,84 @@
-from flask import Blueprint, jsonify, request
-from flask_migrate import current
-from hobbit_core.utils import secure_filename
-from flask_login import login_user, login_required, logout_user, current_user
-from app.exts import db, login_manager
-from marshmallow import Schema, fields, validate
-from app.utils.result import ok
-from flask import current_app
-from flask import send_from_directory
-import os
-import uuid
 from datetime import datetime
+import click
+
+from flask import Blueprint, request
+from flask_jwt_extended import jwt_required
+from flask_jwt_extended import create_access_token
+from flask_jwt_extended import current_user
+
+from app.exts import jwt, db
+from app.core.result import ok, NotFound, Unauthorized
+from app.models.user import User, UserRoles, Role, init_roles
+from app.schemas.user import RoleSchema, UserSchema, LoginUserSchema
+from datetime import datetime
+from app.models.user import create_admin, init_roles
 
 bp = Blueprint('user', __name__)
 
 
-@login_manager.user_loader
-def load_user(user_id):
-    pass
+@jwt.user_identity_loader
+def user_identity_lookup(user):
+    return user.id
+
+
+@jwt.user_lookup_loader
+def user_lookup_callback(_jwt_header, jwt_data):
+    identity = jwt_data["sub"]
+    user = User.query.filter(User.id == identity, User.is_active == True,
+                             User.is_deleted == False).one_or_none()
+    if not user:
+        raise Unauthorized(f"id 为{identity}用户，不存在或已被冻结或已被删除，请联系管理员")
+
+    user.active_date = datetime.now()
+    db.session.commit()
+    if user.is_logout:
+        raise Unauthorized("用户已退出，请重新登录")
+    return user
 
 
 @bp.route('/user/login', methods=['POST'])
 def login():
-    return ok()
+    args = LoginUserSchema().load(request.json)
+    user = User.get(args['name'], args['password'])
+    if not user:
+        raise NotFound("用户不存在或者密码不匹配")
+    user.login_at = datetime.now()
+    user.is_logout = False
+    db.session.commit()
+    access_token = create_access_token(identity=user)
+    return ok({"token": access_token})
 
 
-@bp.route('/user/logout', methods=['GET'])
-@login_required
+@bp.route("/user/info", methods=["POST"])
+@jwt_required()
+def user_info():
+    user_info = UserSchema().dump(current_user)
+    user_info['roles'] = RoleSchema(many=True).dump(current_user.query_roles())
+    return ok(user_info)
+
+
+@bp.route('/user/logout', methods=['POST'])
+@jwt_required()
 def logout():
-    logout_user()
+    current_user.is_logout = True
+    db.session.commit()
     return ok()
+
+
+@bp.cli.command('create_admin')
+@click.argument('name')
+@click.argument('passwd')
+def cli_create_admin(name, passwd):
+    create_admin(name, passwd)
+
+
+@bp.cli.command('list')
+def cli_list():
+    query = User.query.filter()
+    for row in query:
+        print(UserSchema().dump(row))
+
+
+@bp.cli.command('init_roles')
+def cli_init_roles():
+    init_roles()

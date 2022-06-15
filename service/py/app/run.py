@@ -6,7 +6,7 @@ from flask_cors import CORS
 
 from marshmallow.exceptions import ValidationError
 
-from app.exts import db, migrate, ma, hobbit, login_manager
+from app.exts import db, migrate, ma, hobbit, login_manager, jwt
 
 
 def register_extensions(app):
@@ -16,6 +16,7 @@ def register_extensions(app):
     hobbit.init_app(app, db)
     login_manager.init_app(app)
     migrate.init_app(app)
+    jwt.init_app(app)
 
 
 def register_blueprints(app):
@@ -25,7 +26,8 @@ def register_blueprints(app):
         if bp is not None:
             app.register_blueprint(
                 bp, url_prefix=f"/api{bp.url_prefix if bp.url_prefix else ''}")
-    print(app.url_map)
+    if app.config["DEBUG"]:
+        print(app.url_map)
 
 
 def handle_marshmallow_validate_error(e: ValidationError):
@@ -36,7 +38,7 @@ def handle_marshmallow_validate_error(e: ValidationError):
 
 
 def register_error_handler(app):
-    from app.utils import result
+    from app.core import result
     app.register_error_handler(ValidationError,
                                handle_marshmallow_validate_error)
     result.register_error_handler(app)

@@ -1,7 +1,6 @@
 from flask import Blueprint, jsonify
 
-from app.utils.result import BadParam, ok
-from app.utils import result
+from app.core import result
 
 bp = Blueprint('example', __name__)
 

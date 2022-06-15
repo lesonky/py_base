@@ -1,34 +1,38 @@
 from marshmallow import Schema, fields, validate
+from werkzeug.wrappers import request
 from app.exts import ma
-from app.models.user import Orgnization, User, Role
+from app.models.user import User, Role
+from app.core.schema import CamelCaseSchemaMixin, camelcase
 
 
 class QueryUserSchema(Schema):
     """
     params of query user
     """
-    phone_num = fields.Str()
-    name = fields.Str()
-    title = fields.Str()
-    department = fields.Str()
-    is_active = fields.Boolean()
-    page = fields.Integer(missing=1, validate=validate.Range(min=1))
-    page_size = fields.Integer(missing=10,
-                               validate=validate.Range(min=1, max=100))
+    phone = fields.Str()
+    username = fields.Str()
+    email = fields.Str()
+    pageNum = fields.Integer(missing=1, validate=validate.Range(min=1))
+    pageSize = fields.Integer(missing=10,
+                              validate=validate.Range(min=1, max=100))
 
 
-class ActiveUserSchema(Schema):
+class UserUpertSchema(CamelCaseSchemaMixin, Schema):
     """
-    args for active/deactive user
+    fields for update or create user
     """
-    id = fields.Integer(required=True)
-    is_active = fields.Boolean(required=True)
-
-
-class OrgnizationSchema(ma.SQLAlchemyAutoSchema):
-
-    class Meta:
-        model = Orgnization
+    # user uuid
+    account_id = fields.String(required=False)
+    name = fields.String(required=True)
+    nick_name = fields.String()
+    email = fields.String()
+    avatar = fields.String()
+    is_deleted = fields.Bool(required=False)
+    is_active = fields.Bool(required=True)
+    phone = fields.String()
+    password = fields.String()
+    introduction = fields.String()
+    roles = fields.List(fields.Dict())
 
 
 class RegisterUserSchema(Schema):
@@ -57,38 +61,19 @@ class LoginUserSchema(Schema):
     """
     args for login user
     """
-    name_or_phone_num = fields.String(required=True)
-    passwd = fields.String(required=True)
-
-
-class SendVerifyCodeSchema(Schema):
-    """
-    args for send verify code
-    """
-    phone_num = fields.String()
-
-
-class ResetUserPasswdSchema(Schema):
-    """
-    args for reset user passwd
-    """
-    phone_num = fields.String(required=True)
-    verify_code = fields.String(required=True)
-    new_passwd = fields.String(required=True,
-                               validate=validate.Length(min=8, max=16))
-
-
-class UserSchema(ma.SQLAlchemyAutoSchema):
-
-    class Meta:
-        model = User
-        include_fk = True
-        exclude = ['hashed_passwd']
-
-    org = fields.Nested(OrgnizationSchema)
+    name = fields.String(required=True)
+    password = fields.String(required=True)
 
 
 class RoleSchema(ma.SQLAlchemyAutoSchema):
 
     class Meta:
         model = Role
+
+
+class UserSchema(CamelCaseSchemaMixin, ma.SQLAlchemyAutoSchema):
+
+    class Meta:
+        model = User
+        include_fk = True
+        exclude = ['hashed_passwd']
