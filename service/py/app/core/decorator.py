@@ -77,3 +77,45 @@ def roles_required(*role_names):
         return decorator
 
     return wrapper
+
+
+def permission_required(*permission_codes):
+
+    def wrapper(view_function):
+
+        @wraps(view_function)  # Tells debuggers that is is a function wrapper
+        def decorator(*args, **kwargs):
+            # User must have the required roles
+            if not current_user.has_permissions(*permission_codes):
+                perms = [str(x) for x in permission_codes]
+                raise NoPermission(
+                    msg=
+                    f"no permission, require use have all permission of: [{perms}]"
+                )
+            # It's OK to call the view
+            return view_function(*args, **kwargs)
+
+        return decorator
+
+    return wrapper
+
+
+def permission_accepted(*permission_codes):
+
+    def wrapper(view_function):
+
+        @wraps(view_function)  # Tells debuggers that is is a function wrapper
+        def decorator(*args, **kwargs):
+            # User must have the required roles
+            if not current_user.has_permissions(permission_codes):
+                perms = [str(x) for x in permission_codes]
+                raise NoPermission(
+                    msg=
+                    f"no permission, require use have one of permission of: [{perms}]"
+                )
+            # It's OK to call the view
+            return view_function(*args, **kwargs)
+
+        return decorator
+
+    return wrapper

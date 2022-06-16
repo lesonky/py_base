@@ -1,62 +1,67 @@
 import uuid
-from datetime import datetime
 from app.exts import db
-from flask_login import login_required
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request
 from sqlalchemy import exc
 
 from flask_jwt_extended import jwt_required
+from flask_jwt_extended import current_user
 
-from app.core.decorator import roles_required
-from app.core.result import ok, NotFound
-from app.models.user import User, UserRoles, Role
+from app.models.user import User, Role
 from app.exts import jwt
+from app.core.decorator import permission_required
+from app.core.result import ok, NotFound, BadParam
 
 from marshmallow import Schema, fields
 
-from app.schemas.user import RoleSchema, UserSchema, QueryUserSchema, UserUpertSchema
-from app.core.result import BadParam
+from app.schemas.user import UserSchema, QueryUserSchema, UserUpdateSelfSchema, UserUpertSchema, ResetPasswordSchema
+from app.models.permission import Permission
 
 bp = Blueprint('user_admin', __name__)
 
 
 @bp.route('/user/list', methods=['GET'])
-@jwt_required()
 def query_users():
     args = QueryUserSchema().load(request.args)
     query = User.query.filter()
-    page = query.order_by(User.id.desc()).paginate(page=args['pageNum'],
-                                                   per_page=args['pageSize'])
+    if args.get('phone', None):
+        query = query.filter(User.phone.ilike(f'%{args["phone"]}%'))
+    if args.get('name', None):
+        query = query.filter(User.name.ilike(f'%{args["name"]}%'))
+    if args.get("email", None):
+        query = query.filter(User.email.ilike(f'%{args["email"]}%'))
+    if args.get("nick_name", None):
+        query = query.filter(User.nick_name.ilike(f'%{args["nick_name"]}%'))
+    if not args.get("include_Deleted", None):
+        query = query.filter(User.is_deleted == False)
+    if args.get("role", None):
+        role = Role.query.filter(Role.name == args['role']).one_or_none()
+        if not role:
+            raise BadParam(f"no role found with name {args['role']}")
+        query = query.filter(User.role_id == role.id)
+
+    page = query.order_by(User.id.desc()).paginate(page=args['page_num'],
+                                                   per_page=args['page_size'],
+                                                   error_out=False)
     users_schema = UserSchema(many=True)
     items = users_schema.dump(page.items)
 
-    # inject user roles
-    user_ids = [x['id'] for x in items]
-    q = UserRoles.query.filter(UserRoles.user_id.in_(user_ids))
-    m = {}
-    role_map = Role.role_map()
-    for row in q:
-        m[row.user_id] = m.get(row.user_id, [])
-        m[row.user_id].append({
-            "id": row.role_id,
-            'name': role_map.get(row.role_id)
-        })
-    for item in items:
-        item['roles'] = m.get(item['id'])
     return ok({'total': page.total, 'items': items})
 
 
-@bp.route("/user/roles", methods=["GET"])
-@jwt_required()
-@roles_required("admin")
-def option_roles():
-    roles = Role.query.filter()
-    items = RoleSchema(many=True).dump(roles)
-    return ok({"items": items})
+def get_role(args):
+    role = args.pop("role", {})
+    role_name = role.pop('name', None)
+    if not role_name:
+        raise BadParam("role: {name: xxx} required")
+    role = Role.query.filter(Role.name == role_name).one_or_none()
+    if not role:
+        raise BadParam(f"no role found with name {role_name}")
+    return role
 
 
 def update_user(args):
     args.pop('name')
+    role = get_role(args)
     account_id = args['account_id']
     passwd = args.pop('password', None)
 
@@ -68,53 +73,35 @@ def update_user(args):
 
     for key, value in args.items():
         setattr(user, key, value)
-
-    roles = args.pop("roles", [])
-    role_ids = [x['id'] for x in roles]
-    has_ids = [
-        x.id for x in UserRoles.query.filter(UserRoles.user_id == user.id)
-    ]
-    to_delete_ids = [x for x in has_ids if x not in role_ids]
-    to_create_ids = [x for x in role_ids if x not in has_ids]
-
-    if to_delete_ids:
-        query = UserRoles.query.filter(UserRoles.user_id == user.id,
-                                       UserRoles.role_id.in_(to_delete_ids))
-        query.delete(synchronize_session=False)
-    for role_id in to_create_ids:
-        user_role = UserRoles(user_id=user.id, role_id=role_id)
-        db.session.add(user_role)
+    user.role_id = role.id
     db.session.commit()
     return user
 
 
 def create_user(args):
-    roles = args.pop("roles", [])
     passwd = args.pop('password', None)
     if not passwd:
         raise BadParam("Password is required for create new user")
+    role = get_role(args)
 
     user = User(**args)
     user.hashed_passwd = User.make_hashed_passwd(passwd)
     user.account_id = uuid.uuid4().hex
+    user.role_id = role.id
+
     db.session.add(user)
     db.session.commit()
 
-    for role in roles:
-        user_role = UserRoles(role_id=role['id'], user_id=user.id)
-        db.session.add(user_role)
-    db.session.commit()
     return user
 
 
 @bp.route("/user/upsert", methods=['POST'])
 @jwt_required()
-@roles_required('admin')
+@permission_required(Permission.EditUser)
 def user_upsert():
-    print(request.json)
     args = UserUpertSchema().load(request.json)
-    user = None
     account_id = args.get("account_id", None)
+    user = None
     try:
         if account_id:
             user = update_user(args)
@@ -124,5 +111,30 @@ def user_upsert():
         if "UNIQUE constraint failed" in str(e):
             raise BadParam(f"用户名 {args['name']} 已存在")
     user_info = UserSchema().dump(user)
-    user_info['roles'] = RoleSchema(many=True).dump(user.query_roles())
+    return ok(user_info)
+
+
+@bp.route("/user/self/update", methods=["POST"])
+@jwt_required()
+def user_update_self():
+    args = UserUpdateSelfSchema().load(request.json)
+    user = current_user
+    for key, value in args.items():
+        setattr(user, key, value)
+    db.session.commit()
+    user_info = UserSchema().dump(user)
+    return ok(user_info)
+
+
+@bp.route("/user/self/reset_password", methods=["POST"])
+@jwt_required()
+def user_reset_password():
+    args = ResetPasswordSchema().load(request.json)
+    user = current_user
+    old_hashed_passwd = User.make_hashed_passwd(args['old_password'])
+    if old_hashed_passwd != user.hashed_passwd:
+        raise BadParam("旧密码不正确，请重新输入")
+    user.hashed_passwd = User.make_hashed_passwd(args['new_password'])
+    db.session.commit()
+    user_info = UserSchema().dump(user)
     return ok(user_info)

@@ -8,23 +8,25 @@ from flask_jwt_extended import current_user
 
 from app.exts import jwt, db
 from app.core.result import ok, NotFound, Unauthorized
-from app.models.user import User, UserRoles, Role, init_roles
-from app.schemas.user import RoleSchema, UserSchema, LoginUserSchema
+from app.models.user import User
+from app.schemas.user import UserSchema, LoginUserSchema
+from app.schemas.role import RoleSchema
 from datetime import datetime
-from app.models.user import create_admin, init_roles
+from app.models.user import create_admin
 
 bp = Blueprint('user', __name__)
 
 
 @jwt.user_identity_loader
 def user_identity_lookup(user):
-    return user.id
+    return user.account_id
 
 
 @jwt.user_lookup_loader
 def user_lookup_callback(_jwt_header, jwt_data):
     identity = jwt_data["sub"]
-    user = User.query.filter(User.id == identity, User.is_active == True,
+    user = User.query.filter(User.account_id == identity,
+                             User.is_active == True,
                              User.is_deleted == False).one_or_none()
     if not user:
         raise Unauthorized(f"id 为{identity}用户，不存在或已被冻结或已被删除，请联系管理员")
@@ -53,7 +55,6 @@ def login():
 @jwt_required()
 def user_info():
     user_info = UserSchema().dump(current_user)
-    user_info['roles'] = RoleSchema(many=True).dump(current_user.query_roles())
     return ok(user_info)
 
 
