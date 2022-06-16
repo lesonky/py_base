@@ -88,4 +88,22 @@ py.test
 
 # docker-compose 部署
 
+部署到测试服务器，这个地方请参照 `./deploy/docker/env_test.sh` 将里面一些变量改为其他的
+
+```bash
+$cp ./deploy/docker/env_test.sh ./deploy/docker/env_test2.sh
+#修改env_test2.sh 中的配置
+$DEPLOY_ENV=env_test2.sh ./deploy/docker/deploy.sh
+```
+
+为了方便部署，可以将ssh-key 拷贝到服务器上, 将`xieyu@192.168.0.14`改为自己的
+```
+ssh-copy-id -i  ~/.ssh/id_rsa.pub xieyu@192.168.0.14
+```
+为了避免每次运行docker要sudo, 可以请有sudo 权限的用户，将自己加入到docker组, 将下面的`$USER`改为自己的用户名
+
+```
+sudo gpasswd -a $USER docker
+```
+
 # K8s 部署
