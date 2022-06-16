@@ -71,7 +71,7 @@
       <a-divider style="margin-top: 0" />
       <a-row style="margin-bottom: 16px">
         <a-col :span="24" style="text-align: right">
-          <a-button type="primary">
+          <a-button type="primary" @click="createUser">
             <template #icon>
               <icon-plus />
             </template>
@@ -215,6 +215,7 @@
       </a-table>
     </a-card>
   </div>
+  <UserDialog v-model:visible="userDialogVisible"></UserDialog>
 </template>
 
 <script lang="ts" setup>
@@ -227,6 +228,7 @@ import { useUserStore } from '@/store';
 
 import { UserState } from '@/store/modules/user/types';
 import { Pagination } from '#/global';
+import UserDialog from '../components/UserDialog.vue';
 
 const generateFormModel: () => QueryUserData = () => {
   return {
@@ -243,6 +245,7 @@ const userList = ref<UserState[]>([]);
 const formModel = ref(generateFormModel());
 const formRef = ref();
 const userStore = useUserStore();
+const userDialogVisible = ref(false);
 const basePagination: Pagination = {
   pageSize: 10,
   pageNum: 1,
@@ -346,6 +349,10 @@ const passwordResetCheck = (
     done(true);
   }
   return false;
+};
+
+const createUser = () => {
+  userDialogVisible.value = true;
 };
 
 onBeforeMount(() => {

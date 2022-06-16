@@ -20,75 +20,75 @@
 </template>
 
 <script lang="ts" setup>
-  import { useAppStore } from '@/store';
-  import Footer from '@/components/footer/index.vue';
-  import LoginBanner from './components/banner.vue';
-  import LoginForm from './components/login-form.vue';
+import { useAppStore } from '@/store';
+import Footer from '@/components/footer/index.vue';
+import LoginBanner from './components/banner.vue';
+import LoginForm from './components/login-form.vue';
 
-  const appStore = useAppStore();
+const appStore = useAppStore();
 </script>
 
 <style lang="less" scoped>
-  .container {
+.container {
+  display: flex;
+  height: 100vh;
+
+  &.has-banner {
+    background: linear-gradient(163.85deg, #1d2129 0%, #00308f 100%);
+
+    .content-inner {
+      padding: 24px;
+      background: rgba(255, 255, 255, 1);
+      border-radius: 4px;
+    }
+  }
+
+  .banner {
+    width: 550px;
+    background: linear-gradient(163.85deg, #1d2129 0%, #00308f 100%);
+  }
+
+  .content {
+    position: relative;
     display: flex;
-    height: 100vh;
-
-    &.has-banner {
-      background: linear-gradient(163.85deg, #1d2129 0%, #00308f 100%);
-
-      .content-inner {
-        padding: 24px;
-        background: rgba(255, 255, 255, 1);
-        border-radius: 4px;
-      }
-    }
-
-    .banner {
-      width: 550px;
-      background: linear-gradient(163.85deg, #1d2129 0%, #00308f 100%);
-    }
-
-    .content {
-      position: relative;
-      display: flex;
-      flex: 1;
-      align-items: center;
-      justify-content: center;
-      padding-bottom: 40px;
-    }
-
-    .footer {
-      position: absolute;
-      right: 0;
-      bottom: 0;
-      width: 100%;
-    }
-  }
-
-  .logo {
-    position: fixed;
-    top: 24px;
-    left: 22px;
-    z-index: 1;
-    display: inline-flex;
+    flex: 1;
     align-items: center;
-
-    &-text {
-      margin-right: 4px;
-      margin-left: 4px;
-      color: var(--color-fill-1);
-      font-size: 20px;
-    }
+    justify-content: center;
+    padding-bottom: 40px;
   }
+
+  .footer {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+  }
+}
+
+.logo {
+  position: fixed;
+  top: 24px;
+  left: 22px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+
+  &-text {
+    margin-right: 4px;
+    margin-left: 4px;
+    color: var(--color-fill-1);
+    font-size: 20px;
+  }
+}
 </style>
 
 <style lang="less" scoped>
-  // responsive
-  @media (max-width: @screen-lg) {
-    .container {
-      .banner {
-        width: 25%;
-      }
+// responsive
+@media (max-width: @screen-lg) {
+  .container {
+    .banner {
+      width: 25%;
     }
   }
+}
 </style>

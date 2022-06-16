@@ -10,30 +10,30 @@
 </template>
 
 <script lang="ts" setup>
-  import { PropType } from 'vue';
+import { PropType } from 'vue';
 
-  defineProps({
-    items: {
-      type: Array as PropType<string[]>,
-      default() {
-        return [];
-      },
+defineProps({
+  items: {
+    type: Array as PropType<string[]>,
+    default() {
+      return [];
     },
-    useI18n: {
-      type: Boolean,
-      default: true,
-    },
-  });
+  },
+  useI18n: {
+    type: Boolean,
+    default: true,
+  },
+});
 </script>
 
 <style scoped lang="less">
-  .container-breadcrumb {
-    margin: 16px 0;
-    :deep(.arco-breadcrumb-item) {
-      color: rgb(var(--gray-6));
-      &:last-child {
-        color: rgb(var(--gray-8));
-      }
+.container-breadcrumb {
+  margin: 16px 0;
+  :deep(.arco-breadcrumb-item) {
+    color: rgb(var(--gray-6));
+    &:last-child {
+      color: rgb(var(--gray-8));
     }
   }
+}
 </style>
