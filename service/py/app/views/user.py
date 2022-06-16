@@ -1,5 +1,8 @@
 from datetime import datetime
 import click
+import os
+import uuid
+from flask import current_app
 
 from flask import Blueprint, request
 from flask_jwt_extended import jwt_required
@@ -66,20 +69,30 @@ def logout():
     return ok()
 
 
+@bp.route("/user/avatar", methods=['POST'])
+@jwt_required()
+def upload_avatar():
+    print("the request files is", request.files)
+    file = request.files['avatar']
+    _, ext = os.path.splitext(file.filename)
+
+    uid = uuid.uuid4().hex
+    uuid_filename = "{}{}".format(uid, ext)
+    avatar_path = os.path.join(current_app.config['AVATAR_PATH'],
+                               uuid_filename)
+    file.save(avatar_path)
+    url = f"/api/user/avatar/{uuid_filename}"
+    return ok({"avatar": url})
+
+
+@bp.route('/user/avatar/<path:path>', methods=['GET'])
+def avatar_image(path):
+    from flask import current_app, send_from_directory
+    return send_from_directory(current_app.config['AVATAR_PATH'], path)
+
+
 @bp.cli.command('create_admin')
 @click.argument('name')
 @click.argument('passwd')
 def cli_create_admin(name, passwd):
     create_admin(name, passwd)
-
-
-@bp.cli.command('list')
-def cli_list():
-    query = User.query.filter()
-    for row in query:
-        print(UserSchema().dump(row))
-
-
-@bp.cli.command('init_roles')
-def cli_init_roles():
-    init_roles()

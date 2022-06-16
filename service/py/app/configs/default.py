@@ -15,3 +15,5 @@ DEBUG = True
 SQLALCHEMY_DATABASE_URI = 'sqlite:///{}'.format(
     os.path.join(ROOT_PATH, 'demo.db'))
 SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+AVATAR_PATH = "/opt/data/avatar"
