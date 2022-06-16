@@ -25,7 +25,6 @@ const props = withDefaults(
 const emit = defineEmits(['update:visible', 'update:userState']);
 
 const $visible = useVModel(props, 'visible', emit);
-const $userState = useVModel(props, 'userState', emit);
 
 const userStore = useUserStore();
 
