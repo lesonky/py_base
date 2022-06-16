@@ -1,0 +1,12 @@
+version: "3"
+services:
+  dcgm_exporter:
+        image: nvidia/dcgm-exporter:1.4.3
+        runtime: nvidia
+        volumes:
+            - prometheus_textfiles:/run/prometheus
+volumes:
+  prometheus_textfiles:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs

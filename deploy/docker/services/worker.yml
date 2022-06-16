@@ -1,0 +1,13 @@
+version: "3"
+services: 
+  worker:
+    image: $WEB_API_DOCKER_IMAGE
+    restart: always
+    command: ["python3", "worker.py"]
+    environment:
+      TZ: Asia/Shanghai
+      FLASK_ENV: production
+      FLASK_APP: app/run.py
+    volumes: 
+      - $CM_DIR/api-config:/app/configs
+      - $DATA_DIR/:/opt/data

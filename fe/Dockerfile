@@ -6,7 +6,7 @@ COPY ./package*.json ./
 RUN yarn install
 
 COPY . .
-RUN yarn run build --release
+RUN yarn build
 
 
 FROM nginx:1.21.6

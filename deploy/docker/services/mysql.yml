@@ -1,0 +1,18 @@
+version: "3"
+services: 
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: always
+    command: 
+     --lower_case_table_names=1
+     --character-set-server=utf8mb4
+     --collation-server=utf8mb4_general_ci
+     --explicit_defaults_for_timestamp=true
+    ports:
+      - $MYSQL_HOST_PORT:3306
+    environment:
+      TZ: Asia/Shanghai
+      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+    volumes: 
+      - $DATA_DIR/mysql/:/var/lib/mysql

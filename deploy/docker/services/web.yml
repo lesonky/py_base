@@ -1,0 +1,26 @@
+version: "3"
+services: 
+  web_api:
+    image: $DOCKER_IMAGE_WEB_API:$WEB_API_TAG
+    restart: always
+    command: [
+      "gunicorn",
+      "--chdir", "/app/app",
+      "run:app",
+      "-b", "0.0.0.0:5000",
+      "-w","5",
+      "--timeout", "60",
+      "--capture-output",
+      "--log-level", "debug",
+      "--error-logfile", "-",
+      "--access-logfile", "-"
+    ]
+    ports:
+      - $WEB_API_HOST_PORT:5000
+    environment:
+      TZ: Asia/Shanghai
+      FLASK_ENV: production
+      FLASK_APP: app/run.py
+    volumes: 
+      - $CM_DIR/web_api:/app/app/configs
+      - $DATA_DIR/web:/opt/data
