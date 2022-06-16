@@ -1,4 +1,5 @@
 import { RouteLocationNormalized, RouteRecordRaw } from 'vue-router';
+import { intersection } from 'lodash';
 import { useUserStore } from '@/store';
 
 export default function usePermission() {
@@ -7,18 +8,23 @@ export default function usePermission() {
     accessRouter(route: RouteLocationNormalized | RouteRecordRaw) {
       return (
         !route.meta?.requiresAuth ||
-        !route.meta?.roles ||
-        route.meta?.roles?.includes('*') ||
-        route.meta?.roles?.includes(userStore.role)
+        !route.meta?.permissions ||
+        route.meta?.permissions?.includes('*') ||
+        intersection(route.meta?.permissions, userStore.userInfo.permissions)
+          .length > 0
       );
     },
-    findFirstPermissionRoute(_routers: any, role = 'admin') {
+    findFirstPermissionRoute(_routers: any, permissions = ['all']) {
       const cloneRouters = [..._routers];
       while (cloneRouters.length) {
         const firstElement = cloneRouters.shift();
         if (
           firstElement?.meta?.roles?.find((el: string[]) => {
-            return el.includes('*') || el.includes(role);
+            return (
+              el.includes('*') ||
+              permissions.includes('all') ||
+              intersection(el, permissions).length > 0
+            );
           })
         )
           return { name: firstElement.name };

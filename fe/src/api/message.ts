@@ -27,7 +27,7 @@ export function setMessageStatus(data: MessageStatus) {
 
 export interface ChatRecord {
   id: number;
-  username: string;
+  name: string;
   content: string;
   time: string;
   isCollect: boolean;

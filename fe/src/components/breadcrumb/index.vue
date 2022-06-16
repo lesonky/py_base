@@ -4,7 +4,7 @@
       <icon-apps />
     </a-breadcrumb-item>
     <a-breadcrumb-item v-for="item in items" :key="item">
-      {{ $t(item) }}
+      {{ useI18n ? $t(item) : item }}
     </a-breadcrumb-item>
   </a-breadcrumb>
 </template>
@@ -18,6 +18,10 @@
       default() {
         return [];
       },
+    },
+    useI18n: {
+      type: Boolean,
+      default: true,
     },
   });
 </script>

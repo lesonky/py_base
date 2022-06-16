@@ -1,3 +1,8 @@
+# 菜单代码样例
+
+[参考文档](https://arco.design/docs/pro/routes-and-menu)
+
+```ts
 import { DEFAULT_LAYOUT } from '@/router/constans';
 
 export default {
@@ -7,7 +12,7 @@ export default {
   meta: {
     locale: 'menu.dashboard',
     requiresAuth: true,
-    icon: 'icon-dashboard',
+    icon: 'icon-user',
     order: 0,
   },
   children: [
@@ -23,3 +28,4 @@ export default {
     },
   ],
 };
+```

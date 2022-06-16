@@ -188,140 +188,140 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, ref, inject } from 'vue';
-  import { Message } from '@arco-design/web-vue';
-  import { useDark, useToggle, useFullscreen } from '@vueuse/core';
-  import { useAppStore, useUserStore } from '@/store';
-  import { useRouter } from 'vue-router';
-  import { LOCALE_OPTIONS } from '@/locale';
-  import useLocale from '@/hooks/locale';
-  import useUser from '@/hooks/user';
-  import debug from '@/utils/env';
-  import MessageBox from '../message-box/index.vue';
+import { computed, ref, inject } from 'vue';
+import { Message } from '@arco-design/web-vue';
+import { useDark, useToggle, useFullscreen } from '@vueuse/core';
+import { useAppStore, useUserStore } from '@/store';
+import { useRouter } from 'vue-router';
+import { LOCALE_OPTIONS } from '@/locale';
+import useLocale from '@/hooks/locale';
+import useUser from '@/hooks/user';
+import debug from '@/utils/env';
+import MessageBox from '../message-box/index.vue';
 
-  const appStore = useAppStore();
-  const userStore = useUserStore();
-  const router = useRouter();
-  const { logout } = useUser();
-  const { changeLocale } = useLocale();
-  const { isFullscreen, toggle: toggleFullScreen } = useFullscreen();
-  const locales = [...LOCALE_OPTIONS];
-  const avatar = computed(() => {
-    return userStore.avatar;
+const appStore = useAppStore();
+const userStore = useUserStore();
+const router = useRouter();
+const { logout } = useUser();
+const { changeLocale } = useLocale();
+const { isFullscreen, toggle: toggleFullScreen } = useFullscreen();
+const locales = [...LOCALE_OPTIONS];
+const avatar = computed(() => {
+  return userStore.avatar;
+});
+const theme = computed(() => {
+  return appStore.theme;
+});
+const isDark = useDark({
+  selector: 'body',
+  attribute: 'arco-theme',
+  valueDark: 'dark',
+  valueLight: 'light',
+  storageKey: 'arco-theme',
+  onChanged(dark: boolean) {
+    // overridden default behavior
+    appStore.toggleTheme(dark);
+  },
+});
+const toggleTheme = useToggle(isDark);
+const handleToggleTheme = () => {
+  toggleTheme();
+};
+const setVisible = () => {
+  appStore.updateSettings({ globalSettings: true });
+};
+const refBtn = ref();
+const triggerBtn = ref();
+const setPopoverVisible = () => {
+  const event = new MouseEvent('click', {
+    view: window,
+    bubbles: true,
+    cancelable: true,
   });
-  const theme = computed(() => {
-    return appStore.theme;
+  refBtn.value.dispatchEvent(event);
+};
+const handleLogout = () => {
+  logout();
+};
+const setDropDownVisible = () => {
+  const event = new MouseEvent('click', {
+    view: window,
+    bubbles: true,
+    cancelable: true,
   });
-  const isDark = useDark({
-    selector: 'body',
-    attribute: 'arco-theme',
-    valueDark: 'dark',
-    valueLight: 'light',
-    storageKey: 'arco-theme',
-    onChanged(dark: boolean) {
-      // overridden default behavior
-      appStore.toggleTheme(dark);
-    },
-  });
-  const toggleTheme = useToggle(isDark);
-  const handleToggleTheme = () => {
-    toggleTheme();
-  };
-  const setVisible = () => {
-    appStore.updateSettings({ globalSettings: true });
-  };
-  const refBtn = ref();
-  const triggerBtn = ref();
-  const setPopoverVisible = () => {
-    const event = new MouseEvent('click', {
-      view: window,
-      bubbles: true,
-      cancelable: true,
-    });
-    refBtn.value.dispatchEvent(event);
-  };
-  const handleLogout = () => {
-    logout();
-  };
-  const setDropDownVisible = () => {
-    const event = new MouseEvent('click', {
-      view: window,
-      bubbles: true,
-      cancelable: true,
-    });
-    triggerBtn.value.dispatchEvent(event);
-  };
-  const switchRoles = async () => {
-    const res = await userStore.switchRoles();
-    Message.success(res as string);
-  };
+  triggerBtn.value.dispatchEvent(event);
+};
+const switchRoles = async () => {
+  const res = await userStore.switchRoles();
+  Message.success(res.name as string);
+};
 
-  const goBackToRoot = () => {
-    router.push({
-      path: '/login',
-    });
-  };
+const goBackToRoot = () => {
+  router.push({
+    path: '/login',
+  });
+};
 
-  const toggleDrawerMenu = inject('toggleDrawerMenu');
+const toggleDrawerMenu = inject('toggleDrawerMenu');
 </script>
 
 <style scoped lang="less">
-  .navbar {
-    display: flex;
-    justify-content: space-between;
-    height: 100%;
-    background-color: var(--color-bg-2);
-    border-bottom: 1px solid var(--color-border);
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  height: 100%;
+  background-color: var(--color-bg-2);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.left-side {
+  display: flex;
+  align-items: center;
+  padding-left: 20px;
+}
+
+.right-side {
+  display: flex;
+  padding-right: 20px;
+  list-style: none;
+
+  :deep(.locale-select) {
+    border-radius: 20px;
   }
 
-  .left-side {
+  li {
     display: flex;
     align-items: center;
-    padding-left: 20px;
+    padding: 0 10px;
   }
 
-  .right-side {
-    display: flex;
-    padding-right: 20px;
-    list-style: none;
-
-    :deep(.locale-select) {
-      border-radius: 20px;
-    }
-
-    li {
-      display: flex;
-      align-items: center;
-      padding: 0 10px;
-    }
-
-    a {
-      color: var(--color-text-1);
-      text-decoration: none;
-    }
-
-    .nav-btn {
-      color: rgb(var(--gray-8));
-      font-size: 16px;
-      border-color: rgb(var(--gray-2));
-    }
-
-    .trigger-btn,
-    .ref-btn {
-      position: absolute;
-      bottom: 14px;
-    }
-
-    .trigger-btn {
-      margin-left: 14px;
-    }
+  a {
+    color: var(--color-text-1);
+    text-decoration: none;
   }
+
+  .nav-btn {
+    color: rgb(var(--gray-8));
+    font-size: 16px;
+    border-color: rgb(var(--gray-2));
+  }
+
+  .trigger-btn,
+  .ref-btn {
+    position: absolute;
+    bottom: 14px;
+  }
+
+  .trigger-btn {
+    margin-left: 14px;
+  }
+}
 </style>
 
 <style lang="less">
-  .message-popover {
-    .arco-popover-content {
-      margin-top: 0;
-    }
+.message-popover {
+  .arco-popover-content {
+    margin-top: 0;
   }
+}
 </style>

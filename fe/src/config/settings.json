@@ -14,7 +14,7 @@
   "serverMenu": [],
   "globalSettingsBtn": true,
   "i18nBtn": false,
-  "themeBtn": false,
+  "themeBtn": true,
   "messageBtn": false,
   "fullscerrnBtn": false,
   "searchBtn": false,

@@ -40,20 +40,20 @@ setupMock({
 
     // 登录
     Mock.mock(new RegExp('/api/user/login'), (params: MockParams) => {
-      const { username, password } = JSON.parse(params.body);
-      if (!username) {
+      const { name, password } = JSON.parse(params.body);
+      if (!name) {
         return failResponseWrap(null, '用户名不能为空', 50000);
       }
       if (!password) {
         return failResponseWrap(null, '密码不能为空', 50000);
       }
-      if (username === 'admin' && password === 'admin') {
+      if (name === 'admin' && password === 'admin') {
         window.localStorage.setItem('userRole', 'admin');
         return successResponseWrap({
           token: '12345',
         });
       }
-      if (username === 'user' && password === 'user') {
+      if (name === 'user' && password === 'user') {
         window.localStorage.setItem('userRole', 'user');
         return successResponseWrap({
           token: '54321',

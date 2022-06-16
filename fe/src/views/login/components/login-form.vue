@@ -11,13 +11,13 @@
       @submit="handleSubmit"
     >
       <a-form-item
-        field="username"
+        field="name"
         :rules="[{ required: true, message: $t('login.form.userName.errMsg') }]"
         :validate-trigger="['change', 'blur']"
         hide-label
       >
         <a-input
-          v-model="userInfo.username"
+          v-model="userInfo.name"
           :placeholder="$t('login.form.userName.placeholder')"
         >
           <template #prefix>
@@ -71,106 +71,107 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, reactive } from 'vue';
-  import { useRouter } from 'vue-router';
-  import { Message } from '@arco-design/web-vue';
-  import { ValidatedError } from '@arco-design/web-vue/es/form/interface';
-  import { useI18n } from 'vue-i18n';
-  import { useStorage } from '@vueuse/core';
-  import { useUserStore, useAppStore } from '@/store';
-  import useLoading from '@/hooks/loading';
-  import type { LoginData } from '@/api/user';
+import { ref, reactive } from 'vue';
+import { useRouter } from 'vue-router';
+import { Message } from '@arco-design/web-vue';
+import { ValidatedError } from '@arco-design/web-vue/es/form/interface';
+import { useI18n } from 'vue-i18n';
+import { useStorage } from '@vueuse/core';
+import { useUserStore, useAppStore } from '@/store';
+import useLoading from '@/hooks/loading';
+import type { LoginData } from '@/api/user';
 
-  const router = useRouter();
-  const { t } = useI18n();
-  const errorMessage = ref('');
-  const { loading, setLoading } = useLoading();
-  const userStore = useUserStore();
-  const appStore = useAppStore();
+const router = useRouter();
+const { t } = useI18n();
+const errorMessage = ref('');
+const { loading, setLoading } = useLoading();
+const userStore = useUserStore();
+const appStore = useAppStore();
 
-  const loginConfig = useStorage('login-config', {
-    rememberPassword: true,
-    username: 'admin', // 演示默认值
-    password: 'admin', // demo default value
-  });
-  const userInfo = reactive({
-    username: loginConfig.value.username,
-    password: loginConfig.value.password,
-  });
+const loginConfig = useStorage('login-config', {
+  rememberPassword: true,
+  name: 'admin', // 演示默认值
+  password: 'admin', // demo default value
+});
+const userInfo = reactive({
+  name: loginConfig.value.name,
+  password: loginConfig.value.password,
+});
 
-  const handleSubmit = async ({
-    errors,
-    values,
-  }: {
-    errors: Record<string, ValidatedError> | undefined;
-    values: Record<string, any>;
-  }) => {
-    if (!errors) {
-      setLoading(true);
-      try {
-        await userStore.login(values as LoginData);
-        const { redirect, ...othersQuery } = router.currentRoute.value.query;
-        router.push({
-          name: (redirect as string) || 'Workplace',
-          query: {
-            ...othersQuery,
-          },
-        });
-        Message.success(t('login.form.login.success'));
-        const { rememberPassword } = loginConfig.value;
-        const { username, password } = values;
-        // 实际生产环境需要进行加密存储。
-        // The actual production environment requires encrypted storage.
-        loginConfig.value.username = rememberPassword ? username : '';
-        loginConfig.value.password = rememberPassword ? password : '';
-      } catch (err) {
-        errorMessage.value = (err as Error).message;
-      } finally {
-        setLoading(false);
-      }
+const handleSubmit = async ({
+  errors,
+  values,
+}: {
+  errors: Record<string, ValidatedError> | undefined;
+  values: Record<string, any>;
+}) => {
+  if (!errors) {
+    setLoading(true);
+    try {
+      errorMessage.value = '';
+      await userStore.login(values as LoginData);
+      const { redirect, ...othersQuery } = router.currentRoute.value.query;
+      router.push({
+        name: (redirect as string) || 'Workplace',
+        query: {
+          ...othersQuery,
+        },
+      });
+      Message.success(t('login.form.login.success'));
+      const { rememberPassword } = loginConfig.value;
+      const { name, password } = values;
+      // 实际生产环境需要进行加密存储。
+      // The actual production environment requires encrypted storage.
+      loginConfig.value.name = rememberPassword ? name : '';
+      loginConfig.value.password = rememberPassword ? password : '';
+    } catch (err) {
+      errorMessage.value = (err as Error).message;
+    } finally {
+      setLoading(false);
     }
-  };
-  const setRememberPassword = (value: boolean) => {
-    loginConfig.value.rememberPassword = value;
-  };
+  }
+};
+const setRememberPassword = (value: boolean) => {
+  loginConfig.value.rememberPassword = value;
+};
 
-  const handleForgetPassword = () => {
-    Message.info(t('login.form.forgetPasswordInfo'));
-  };
+const handleForgetPassword = () => {
+  Message.info(t('login.form.forgetPasswordInfo'));
+};
 </script>
 
 <style lang="less" scoped>
-  .login-form {
-    &-wrapper {
-      width: 320px;
-    }
-
-    &-title {
-      color: var(--color-text-1);
-      font-weight: 500;
-      font-size: 24px;
-      line-height: 32px;
-    }
-
-    &-sub-title {
-      color: var(--color-text-3);
-      font-size: 16px;
-      line-height: 24px;
-    }
-
-    &-error-msg {
-      height: 32px;
-      color: rgb(var(--red-6));
-      line-height: 32px;
-    }
-
-    &-password-actions {
-      display: flex;
-      justify-content: space-between;
-    }
-
-    &-register-btn {
-      color: var(--color-text-3) !important;
-    }
+.login-form {
+  &-wrapper {
+    width: 320px;
   }
+
+  &-title {
+    color: var(--color-text-1);
+    font-weight: 500;
+    font-size: 24px;
+    line-height: 32px;
+  }
+
+  &-sub-title {
+    color: var(--color-text-3);
+    font-size: 16px;
+    line-height: 24px;
+  }
+
+  &-error-msg {
+    height: 32px;
+    color: rgb(var(--red-6));
+    line-height: 32px;
+  }
+
+  &-password-actions {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &-register-btn {
+    color: var(--color-text-3) !important;
+  }
+}
 </style>

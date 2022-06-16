@@ -1,3 +1,8 @@
+# 外部链接菜单样例
+
+[参考文档](https://arco.design/docs/pro/routes-and-menu)
+
+```js
 export default {
   path: 'https://arco.design/vue/docs/pro/faq',
   name: 'faq',
@@ -8,3 +13,4 @@ export default {
     order: 9,
   },
 };
+```

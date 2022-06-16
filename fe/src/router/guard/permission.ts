@@ -16,7 +16,7 @@ export default function setupPermissionGuard(router: Router) {
       else {
         const destination = Permission.findFirstPermissionRoute(
           appRoutes,
-          userStore.role
+          userStore.userInfo.permissions
         ) || {
           name: 'notFound',
         };

@@ -3,11 +3,12 @@ import {
   login as userLogin,
   logout as userLogout,
   getUserInfo,
+  getRoleList,
   LoginData,
 } from '@/api/user';
 import { setToken, clearToken } from '@/utils/auth';
 import { removeRouteListener } from '@/utils/route-listener';
-import { UserState } from './types';
+import { UserState, RoleType } from './types';
 
 const useUserStore = defineStore('user', {
   state: (): UserState => ({
@@ -18,19 +19,29 @@ const useUserStore = defineStore('user', {
     phone: undefined,
     registrationDate: undefined,
     accountId: undefined,
-    role: '',
+    role: undefined,
+    roleList: [],
   }),
 
   getters: {
-    userInfo(state: UserState): UserState {
-      return { ...state };
+    userInfo(
+      state: UserState
+    ): Omit<UserState, 'role'> & { permissions: string[]; role: string } {
+      return {
+        ...state,
+        permissions: state.role?.permissions || [],
+        role: state.role?.name || '',
+      };
     },
   },
 
   actions: {
     switchRoles() {
-      return new Promise((resolve) => {
-        this.role = this.role === 'user' ? 'admin' : 'user';
+      return new Promise<RoleType>((resolve) => {
+        this.role =
+          this.role!.name === 'admin'
+            ? { id: 0, name: 'user', permissions: [] }
+            : { id: 0, name: 'admin', permissions: ['all'] };
         resolve(this.role);
       });
     },
@@ -46,9 +57,16 @@ const useUserStore = defineStore('user', {
 
     // Get user's information
     async info() {
-      const res = await getUserInfo();
-
-      this.setInfo(res.data);
+      try {
+        const { data: userInfo } = await getUserInfo();
+        const {
+          data: { items: roleList },
+        } = await getRoleList();
+        this.setInfo({ ...userInfo, roleList });
+      } catch (err) {
+        console.error(err);
+        this.logout();
+      }
     },
 
     // Login

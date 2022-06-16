@@ -5,5 +5,5 @@ module.exports = {
   singleQuote: true,
   quoteProps: 'consistent',
   htmlWhitespaceSensitivity: 'strict',
-  vueIndentScriptAndStyle: true,
+  vueIndentScriptAndStyle: false,  // vue script 第一个缩进关闭
 };
