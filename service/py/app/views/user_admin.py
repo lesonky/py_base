@@ -108,8 +108,7 @@ def user_upsert():
         else:
             user = create_user(args)
     except exc.IntegrityError as e:
-        if "UNIQUE constraint failed" in str(e):
-            raise BadParam(f"用户名 {args['name']} 已存在")
+        raise BadParam(f"用户名 {args['name']} 已存在")
     user_info = UserSchema().dump(user)
     return ok(user_info)
 
