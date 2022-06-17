@@ -38,7 +38,7 @@ const appStore = useAppStore();
 
     .content-inner {
       padding: 24px;
-      background: rgba(255, 255, 255, 1);
+      background: var(--color-bg-1);
       border-radius: 4px;
     }
   }

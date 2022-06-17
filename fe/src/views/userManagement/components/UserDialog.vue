@@ -1,12 +1,12 @@
 <template>
-  <a-modal
-    v-model:visible="$visible"
-    width="640px"
-    @ok="handleOk"
-    @cancel="handleCancel"
-  >
+  <a-modal v-model:visible="$visible" width="640px">
     <template #title> {{ $title }} </template>
-    <a-form :model="localUserState" :style="{ width: '600px' }">
+    <a-form
+      ref="formRef"
+      :model="localUserState"
+      :style="{ width: '600px' }"
+      :rules="computedRules"
+    >
       <a-form-item field="name" label="用户名">
         <a-input
           v-model="localUserState.name"
@@ -14,7 +14,7 @@
           placeholder="请输入用户名"
         />
       </a-form-item>
-      <a-form-item field="string" label="角色">
+      <a-form-item field="role.name" label="角色">
         <a-select
           v-model="localUserState.role!.name"
           :disabled="isSelf"
@@ -36,16 +36,35 @@
       <a-form-item field="phone" label="电话">
         <a-input v-model="localUserState.phone" placeholder="请输入电话" />
       </a-form-item>
-      <a-form-item v-if="isCreate" field="password" label="密码">
+      <template v-if="isSelf">
+        <a-divider style="margin-top: 0" />
+        <a-alert
+          v-if="localUserState.password"
+          closable
+          type="warning"
+          style="margin-bottom: 16px"
+        >
+          修改密码后需要重新登录
+        </a-alert>
+      </template>
+      <a-form-item v-if="isCreate || isSelf" field="password" label="密码">
         <a-input v-model="localUserState.password" placeholder="请初始密码" />
       </a-form-item>
-      <a-form-item v-if="isCreate" field="passwordConfirm" label="请确认密码">
+      <a-form-item
+        v-if="isCreate || isSelf"
+        field="passwordConfirm"
+        label="请确认密码"
+      >
         <a-input
           v-model="localUserState.passwordConfirm"
           placeholder="请确认密码"
         />
       </a-form-item>
     </a-form>
+    <template #footer>
+      <a-button type="outline" @click="handleCancel">取消</a-button
+      ><a-button type="primary" @click="handleOk">确认</a-button>
+    </template>
   </a-modal>
 </template>
 
@@ -82,7 +101,6 @@ const props = withDefaults(
   }>(),
   {
     visible: false,
-    title: '编辑用户',
   }
 );
 
@@ -98,12 +116,12 @@ const isSelf = computed(() => {
 });
 
 // 是否是新建角色
-const isCreate = computed(() => {
+const isCreate = computed<boolean>(() => {
   return !props.userState?.accountId;
 });
 
 const $title = computed(() => {
-  return props.title || isCreate ? '新增用户' : '修改用户';
+  return props.title || (isCreate.value ? '新增用户' : '修改用户');
 });
 
 // Prop的值来初始化本地模型
@@ -115,11 +133,94 @@ watch(
   }
 );
 
-const handleOk = () => {
-  emit('ok', omit(localUserState.value, 'passwordConfirm'));
+const formRef = ref();
+const rules = {
+  'name': [
+    {
+      required: true,
+      message: '请输入用户名',
+    },
+    {
+      match: /^[a-z][a-z0-9_]+$/gi,
+      message: '格式:字母开头,字母数字下划线组成',
+    },
+  ],
+  'role.name': [
+    {
+      required: true,
+      message: '请选择用户角色',
+    },
+  ],
+  'nickName': [
+    {
+      maxLength: 16,
+      message: '长度不超过16个字符',
+    },
+  ],
+  'email': [
+    {
+      match: /^[^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]+$/i,
+      message: '邮箱格式不正确',
+    },
+  ],
+  'phone': [
+    {
+      match: /^1[0-9]{10}$/i,
+      message: '手机号码格式不正确',
+    },
+  ],
+};
+
+// 只有新增的时候才检查密码
+const computedRules = computed(() => {
+  const passwordRules = {
+    password: [
+      {
+        required: !isSelf.value,
+        minLength: 8,
+        maxLength: 16,
+        message: '密码为8到16位',
+      },
+    ],
+    passwordConfirm: [
+      {
+        required: !isSelf.value,
+        validator: (value: string, cb: (msg: string) => void) => {
+          if (
+            localUserState.value.password &&
+            value !== localUserState.value.password
+          ) {
+            cb('确认密码不一致');
+          }
+          return true;
+        },
+      },
+    ],
+  };
+
+  return isCreate.value || isSelf ? { ...rules, ...passwordRules } : rules;
+});
+
+const closeDialog = () => {
+  formRef.value.clearValidate();
+  emit('update:visible', false);
+};
+
+const handleOk = async () => {
+  try {
+    // 检查表单,如果有错误则不关闭
+    const ret = await formRef.value.validate();
+    if (!ret) {
+      emit('ok', omit(localUserState.value, 'passwordConfirm'));
+      closeDialog();
+    }
+  } catch (err) {
+    console.error(err);
+  }
 };
 const handleCancel = () => {
   emit('cancel');
+  closeDialog();
 };
 </script>
 

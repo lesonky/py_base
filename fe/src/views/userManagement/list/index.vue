@@ -239,6 +239,7 @@ import dayjs from 'dayjs';
 import { getUserList, upsertUser, QueryUserData } from '@/api/user';
 import useLoading from '@/hooks/loading';
 import { useUserStore } from '@/store';
+import useUser from '@/hooks/user';
 
 import { UserState } from '@/store/modules/user/types';
 import { Pagination } from '#/global';
@@ -257,6 +258,7 @@ const generateFormModel: () => QueryUserData = () => {
 
 const { loading, setLoading } = useLoading(true);
 const userStore = useUserStore();
+const { logout } = useUser();
 const userList = ref<UserState[]>([]);
 
 const formModel = ref(generateFormModel());
@@ -281,7 +283,7 @@ const passwordConfirm = reactive({
 const passwordAgainRule = [
   {
     validator: (value: string, cb: (msg: string) => void) => {
-      if (value !== passwordConfirm.password) {
+      if (passwordConfirm.password && value !== passwordConfirm.password) {
         cb('确认密码不一致');
       }
       return true;
@@ -323,14 +325,21 @@ const upsertUserInfo = async (user: UserState & { password?: string }) => {
   try {
     const { data } = await upsertUser({ ...user });
     if (isSelf(user)) {
-      userStore.setInfo(user);
+      if (user.password) {
+        // 修改了自己的密码,需要重新登录
+        logout();
+      } else {
+        userStore.setInfo(user);
+      }
     }
-    if (user.accountId) {
+    // 修改(非删除)用户后,更新用户信息
+    if (user.accountId && !user.isDeleted) {
       const userIndex = userList.value.findIndex(
         (item) => item.accountId === data.accountId
       );
       userList.value[userIndex] = data;
     } else {
+      // 新增或删除用户后,刷新列表数据
       reset();
     }
   } catch (err) {
@@ -353,7 +362,7 @@ const resetUserPassword = async (user: UserState) => {
     await upsertUserInfo({ ...user, password: passwordConfirm.password });
     // 为自己重置密码后需要重新登录
     if (isSelf(user)) {
-      userStore.logout();
+      logout();
     }
   } catch (err) {
     console.error(err);
@@ -390,7 +399,8 @@ const editUser = (user: UserState) => {
 };
 
 const userDialogOk = (user: UserState) => {
-  if (user.accountId) {
+  // 修改其他人或者密码是空值的时候,去掉密码
+  if ((user.accountId && !isSelf(user)) || !user.password) {
     upsertUserInfo(omit(user, 'password'));
   } else {
     upsertUserInfo(user);

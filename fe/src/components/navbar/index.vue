@@ -168,16 +168,16 @@
                 </span>
               </a-space>
             </a-doption>
-            <a-doption>
+            <!-- <a-doption>
               <a-space @click="$router.push({ name: 'Info' })">
                 <icon-user />
                 <span>
                   {{ $t('messageBox.userCenter') }}
                 </span>
               </a-space>
-            </a-doption>
+            </a-doption> -->
             <a-doption>
-              <a-space @click="$router.push({ name: 'Setting' })">
+              <a-space @click="editUserState">
                 <icon-settings />
                 <span>
                   {{ $t('messageBox.userSettings') }}
@@ -196,6 +196,11 @@
         </a-dropdown>
       </li>
     </ul>
+    <UserDialog
+      v-model:visible="userDialogVisible"
+      :user-state="userState"
+      @ok="updateUserState"
+    ></UserDialog>
   </div>
 </template>
 
@@ -205,10 +210,14 @@ import { Message } from '@arco-design/web-vue';
 import { useDark, useToggle, useFullscreen } from '@vueuse/core';
 import { useAppStore, useUserStore } from '@/store';
 import { useRouter } from 'vue-router';
+import { omit } from 'lodash-es';
 import { LOCALE_OPTIONS } from '@/locale';
 import useLocale from '@/hooks/locale';
 import useUser from '@/hooks/user';
 import debug from '@/utils/env';
+import UserDialog from '@/views/userManagement/components/UserDialog.vue';
+import { UserState } from '@/store/modules/user/types';
+import { upsertUser } from '@/api/user';
 import MessageBox from '../message-box/index.vue';
 
 const appStore = useAppStore();
@@ -218,6 +227,21 @@ const { logout } = useUser();
 const { changeLocale } = useLocale();
 const { isFullscreen, toggle: toggleFullScreen } = useFullscreen();
 const locales = [...LOCALE_OPTIONS];
+
+const userDialogVisible = ref(false);
+const getUserStateForEdit = () => ({
+  name: userStore.name,
+  nickName: userStore.nickName,
+  avatar: userStore.avatar,
+  email: userStore.email,
+  introduction: userStore.introduction,
+  phone: userStore.phone,
+  accountId: userStore.accountId,
+  role: userStore.role,
+  isActive: true,
+  isDeleted: false,
+});
+const userState = ref<UserState>({});
 
 const avatar = computed(() => {
   return userStore.avatar;
@@ -281,6 +305,28 @@ const goBackToRoot = () => {
 };
 
 const toggleDrawerMenu = inject('toggleDrawerMenu');
+
+const editUserState = () => {
+  userDialogVisible.value = true;
+  userState.value = getUserStateForEdit();
+};
+
+const updateUserState = async (user: UserState & { password?: string }) => {
+  try {
+    if (!user.password) {
+      user = omit(user, 'password');
+    }
+    const { data } = await upsertUser({ ...user });
+    if (user.password) {
+      // 修改密码后需要重新登录
+      logout();
+    } else {
+      userStore.setInfo(data);
+    }
+  } catch (err) {
+    console.error(err);
+  }
+};
 </script>
 
 <style scoped lang="less">
