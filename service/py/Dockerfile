@@ -38,6 +38,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends gcc
 RUN apt-get install -y python3-dev
 RUN apt-get install -y default-libmysqlclient-dev
 
+ENV TZ Asia/Shanghai
+
 # Copy virtual env from python-deps stage
 COPY --from=python-deps /.venv /.venv
 ENV PATH="/.venv/bin:$PATH"
