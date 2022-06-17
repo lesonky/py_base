@@ -341,9 +341,9 @@ const upsertUserInfo = async (user: UserState & { password?: string }) => {
   setLoading(true);
   try {
     const { data } = await upsertUser({ ...user });
-    if (isSelf(user)) {
+    if (isSelf(user) && user.password) {
+      // 修改了自己的密码,需要重新登录
       if (user.password) {
-        // 修改了自己的密码,需要重新登录
         logout();
       } else {
         userStore.setInfo(user);
@@ -416,8 +416,8 @@ const editUser = (user: UserState) => {
 };
 
 const userDialogOk = (user: UserState) => {
-  // 修改其他人或者密码是空值的时候,去掉密码
-  if ((user.accountId && !isSelf(user)) || !user.password) {
+  // 密码是空值的时候,去掉密码
+  if (!user.password) {
     upsertUserInfo(omit(user, 'password'));
   } else {
     upsertUserInfo(user);
@@ -426,6 +426,8 @@ const userDialogOk = (user: UserState) => {
 
 onBeforeMount(() => {
   fetchData({ ...formModel.value, ...pagination });
+  // 如果没有 roleList 就获取一下
+  userStore.fetchRoleList();
 });
 </script>
 

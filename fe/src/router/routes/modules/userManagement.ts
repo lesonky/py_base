@@ -16,7 +16,17 @@ export default {
       name: 'userManagementList',
       component: () => import('@/views/userManagement/list/index.vue'),
       meta: {
-        locale: 'menu.dashboard.list',
+        locale: 'menu.userManagement.list',
+        requiresAuth: true,
+        permissions: ['*'],
+      },
+    },
+    {
+      path: 'roles',
+      name: 'roleList',
+      component: () => import('@/views/userManagement/role/index.vue'),
+      meta: {
+        locale: 'menu.userManagement.role',
         requiresAuth: true,
         permissions: ['*'],
       },

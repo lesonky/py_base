@@ -50,3 +50,22 @@ export function upsertUser(data: Partial<UserState>) {
 export function getRoleList() {
   return axios.get<{ items: RoleType[] }>('/api/role/list');
 }
+
+// 获取权限列表
+export function getPermissionList() {
+  return axios.get<{ permissions: string[] }>('/api/permission/list');
+}
+
+// 创建角色
+export function cerateRole(data: RoleType) {
+  return axios.post<RoleType>('/api/role/create', data);
+}
+// 创建角色
+export function updateRole(data: RoleType) {
+  return axios.post<RoleType>('/api/role/update', data);
+}
+
+// 删除角色
+export function deleteRoleById(data: { id: number }) {
+  return axios.post('/api/role/delete', data);
+}

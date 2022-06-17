@@ -13,5 +13,6 @@ export default {
   'menu.arcoWebsite': 'Arco Design',
   'menu.faq': '常见问题',
   'menu.userManagement': '用户管理',
-  'menu.dashboard.list': '用户列表',
+  'menu.userManagement.list': '用户列表',
+  'menu.userManagement.role': '角色列表',
 };

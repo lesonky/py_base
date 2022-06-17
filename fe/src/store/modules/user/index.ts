@@ -60,10 +60,19 @@ const useUserStore = defineStore('user', {
     async info() {
       try {
         const { data: userInfo } = await getUserInfo();
+        this.setInfo(userInfo);
+      } catch (err) {
+        console.error(err);
+        this.logout();
+      }
+    },
+
+    async fetchRoleList() {
+      try {
         const {
           data: { items: roleList },
         } = await getRoleList();
-        this.setInfo({ ...userInfo, roleList });
+        this.setInfo({ roleList });
       } catch (err) {
         console.error(err);
         this.logout();

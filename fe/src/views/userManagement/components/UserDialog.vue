@@ -36,25 +36,19 @@
       <a-form-item field="phone" label="电话">
         <a-input v-model="localUserState.phone" placeholder="请输入电话" />
       </a-form-item>
-      <template v-if="isSelf">
-        <a-divider style="margin-top: 0" />
-        <a-alert
-          v-if="localUserState.password"
-          closable
-          type="warning"
-          style="margin-bottom: 16px"
-        >
-          修改密码后需要重新登录
-        </a-alert>
-      </template>
-      <a-form-item v-if="isCreate || isSelf" field="password" label="密码">
+      <a-divider style="margin-top: 0" />
+      <a-alert
+        v-if="localUserState.password && isSelf"
+        closable
+        type="warning"
+        style="margin-bottom: 16px"
+      >
+        修改当前登录用户密码后需要重新登录
+      </a-alert>
+      <a-form-item field="password" label="密码">
         <a-input v-model="localUserState.password" placeholder="请初始密码" />
       </a-form-item>
-      <a-form-item
-        v-if="isCreate || isSelf"
-        field="passwordConfirm"
-        label="请确认密码"
-      >
+      <a-form-item field="passwordConfirm" label="请确认密码">
         <a-input
           v-model="localUserState.passwordConfirm"
           placeholder="请确认密码"
@@ -144,6 +138,10 @@ const rules = {
       match: /^[a-z][a-z0-9_]+$/gi,
       message: '格式:字母开头,字母数字下划线组成',
     },
+    {
+      maxLength: 16,
+      message: '长度不超过16个字符',
+    },
   ],
   'role.name': [
     {
@@ -176,7 +174,7 @@ const computedRules = computed(() => {
   const passwordRules = {
     password: [
       {
-        required: !isSelf.value,
+        required: isCreate.value,
         minLength: 8,
         maxLength: 16,
         message: '密码为8到16位',
@@ -184,7 +182,7 @@ const computedRules = computed(() => {
     ],
     passwordConfirm: [
       {
-        required: !isSelf.value,
+        required: isCreate.value,
         validator: (value: string, cb: (msg: string) => void) => {
           if (
             localUserState.value.password &&
@@ -198,7 +196,7 @@ const computedRules = computed(() => {
     ],
   };
 
-  return isCreate.value || isSelf ? { ...rules, ...passwordRules } : rules;
+  return { ...rules, ...passwordRules };
 });
 
 const closeDialog = () => {
