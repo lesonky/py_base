@@ -13,22 +13,38 @@
             <a-row :gutter="18">
               <a-col :span="8">
                 <a-form-item field="string" label="用户名">
-                  <a-input v-model="formModel.name" placeholder="用户名" />
+                  <a-input
+                    v-model="formModel.name"
+                    placeholder="用户名"
+                    @press-enter="search"
+                  />
                 </a-form-item>
               </a-col>
               <a-col :span="8">
                 <a-form-item field="string" label="昵称">
-                  <a-input v-model="formModel.nickName" placeholder="昵称" />
+                  <a-input
+                    v-model="formModel.nickName"
+                    placeholder="昵称"
+                    @press-enter="search"
+                  />
                 </a-form-item>
               </a-col>
               <a-col :span="8">
                 <a-form-item field="string" label="E-Mail">
-                  <a-input v-model="formModel.email" placeholder="E-Mail" />
+                  <a-input
+                    v-model="formModel.email"
+                    placeholder="E-Mail"
+                    @press-enter="search"
+                  />
                 </a-form-item>
               </a-col>
               <a-col :span="8">
                 <a-form-item field="string" label="电话号码">
-                  <a-input v-model="formModel.phone" placeholder="电话号码" />
+                  <a-input
+                    v-model="formModel.phone"
+                    placeholder="电话号码"
+                    @press-enter="search"
+                  />
                 </a-form-item>
               </a-col>
               <a-col :span="8">
@@ -38,6 +54,7 @@
                     :style="{ width: '100%' }"
                     placeholder="角色"
                     allow-clear
+                    @press-enter="search"
                   >
                     <a-option
                       v-for="(item, index) in userStore.roleList"
