@@ -68,6 +68,9 @@ module.exports = {
     'prefer-regex-literals': 0,
     'import/no-extraneous-dependencies': 0,
     'no-unused-expressions': 0,
-    'no-console': ["error", { allow: ["warn", "error"] }]
+    'no-console': [
+      process.env.NODE_ENV === 'production' ? 2 : 0,
+      { allow: ['warn', 'error'] },
+    ],
   },
 };

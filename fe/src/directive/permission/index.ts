@@ -1,6 +1,6 @@
 import { DirectiveBinding } from 'vue';
 import { useUserStore } from '@/store';
-import { intersection } from 'lodash';
+import { intersection } from 'lodash-es';
 
 function checkPermission(el: HTMLElement, binding: DirectiveBinding) {
   const { value } = binding;

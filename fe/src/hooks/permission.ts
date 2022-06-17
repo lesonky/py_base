@@ -1,5 +1,5 @@
 import { RouteLocationNormalized, RouteRecordRaw } from 'vue-router';
-import { intersection } from 'lodash';
+import { intersection } from 'lodash-es';
 import { useUserStore } from '@/store';
 
 export default function usePermission() {

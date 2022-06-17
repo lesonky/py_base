@@ -12,7 +12,7 @@
   "device": "desktop",
   "tabBar": false,
   "serverMenu": [],
-  "globalSettingsBtn": true,
+  "globalSettingsBtn": false,
   "i18nBtn": false,
   "themeBtn": true,
   "messageBtn": false,

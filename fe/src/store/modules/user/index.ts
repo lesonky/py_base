@@ -13,6 +13,7 @@ import { UserState, RoleType } from './types';
 const useUserStore = defineStore('user', {
   state: (): UserState => ({
     name: undefined,
+    nickName: undefined,
     avatar: undefined,
     email: undefined,
     introduction: undefined,

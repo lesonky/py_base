@@ -90,11 +90,15 @@
           <a-table-column title="用户名">
             <template #cell="{ record }">
               <a-avatar
-                v-if="record.avatar && record.name"
+                v-if="record.name"
                 :size="16"
                 shape="square"
+                :style="{ backgroundColor: '#00d0b6' }"
               >
-                <img alt="avatar" :src="record.avatar" />
+                <img v-if="record.avatar" alt="avatar" :src="record.avatar" />
+                <template v-else>
+                  {{ record.name }}
+                </template>
               </a-avatar>
               {{ record.name }}
             </template>
@@ -102,11 +106,15 @@
           <a-table-column title="昵称">
             <template #cell="{ record }">
               <a-avatar
-                v-if="record.avatar && record.nickName"
+                v-if="record.nickName"
                 :size="16"
                 shape="square"
+                :style="{ backgroundColor: '#00d0b6' }"
               >
-                <img alt="avatar" :src="record.avatar" />
+                <img v-if="record.avatar" alt="avatar" :src="record.avatar" />
+                <template v-else>
+                  {{ record.nickName }}
+                </template>
               </a-avatar>
               {{ record.nickName }}
             </template>
@@ -157,7 +165,9 @@
               >
                 <a-button type="text" size="small"> 删除 </a-button>
               </a-popconfirm>
-              <a-button type="text" size="small"> 编辑 </a-button>
+              <a-button type="text" size="small" @click="editUser(record)">
+                编辑
+              </a-button>
               <a-popconfirm
                 :on-before-ok="passwordResetCheck"
                 @ok="resetUserPassword(record)"
@@ -214,8 +224,12 @@
         </template>
       </a-table>
     </a-card>
+    <UserDialog
+      v-model:visible="userDialogVisible"
+      :user-state="currentEditUser"
+      @ok="userDialogOk"
+    ></UserDialog>
   </div>
-  <UserDialog v-model:visible="userDialogVisible"></UserDialog>
 </template>
 
 <script lang="ts" setup>
@@ -228,6 +242,7 @@ import { useUserStore } from '@/store';
 
 import { UserState } from '@/store/modules/user/types';
 import { Pagination } from '#/global';
+import { omit } from 'lodash';
 import UserDialog from '../components/UserDialog.vue';
 
 const generateFormModel: () => QueryUserData = () => {
@@ -241,11 +256,16 @@ const generateFormModel: () => QueryUserData = () => {
 };
 
 const { loading, setLoading } = useLoading(true);
+const userStore = useUserStore();
 const userList = ref<UserState[]>([]);
+
 const formModel = ref(generateFormModel());
 const formRef = ref();
-const userStore = useUserStore();
+
 const userDialogVisible = ref(false);
+// 记录当前正在修改的用户
+const currentEditUser = ref<UserState>({});
+
 const basePagination: Pagination = {
   pageSize: 10,
   pageNum: 1,
@@ -289,28 +309,36 @@ const search = () => {
 
 const reset = () => {
   formModel.value = generateFormModel();
+  search();
 };
 
 const onPageChange = (pageNum: number) => {
   fetchData({ ...formModel.value, ...basePagination, pageNum });
 };
 
+const isSelf = (user: UserState) => userStore.accountId === user.accountId;
+
 const upsertUserInfo = async (user: UserState & { password?: string }) => {
   setLoading(true);
   try {
     const { data } = await upsertUser({ ...user });
-    const userIndex = userList.value.findIndex(
-      (item) => item.accountId === data.accountId
-    );
-    userList.value[userIndex] = data;
+    if (isSelf(user)) {
+      userStore.setInfo(user);
+    }
+    if (user.accountId) {
+      const userIndex = userList.value.findIndex(
+        (item) => item.accountId === data.accountId
+      );
+      userList.value[userIndex] = data;
+    } else {
+      reset();
+    }
   } catch (err) {
     console.error(err);
   } finally {
     setLoading(false);
   }
 };
-
-const isSelf = (user: UserState) => userStore.accountId === user.accountId;
 
 const changeUserActive = (user: UserState) => {
   upsertUserInfo({ ...user, isActive: !user.isActive });
@@ -352,7 +380,21 @@ const passwordResetCheck = (
 };
 
 const createUser = () => {
+  currentEditUser.value = {};
   userDialogVisible.value = true;
+};
+
+const editUser = (user: UserState) => {
+  currentEditUser.value = { ...user };
+  userDialogVisible.value = true;
+};
+
+const userDialogOk = (user: UserState) => {
+  if (user.accountId) {
+    upsertUserInfo(omit(user, 'password'));
+  } else {
+    upsertUserInfo(user);
+  }
 };
 
 onBeforeMount(() => {
@@ -362,8 +404,8 @@ onBeforeMount(() => {
 
 <style lang="less" scoped>
 .container {
+  height: 100%;
   padding: 0 20px;
   background-color: var(--color-fill-2);
-  height: 100%;
 }
 </style>

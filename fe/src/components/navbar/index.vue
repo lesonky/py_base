@@ -141,12 +141,24 @@
       </li>
       <li>
         <a-dropdown trigger="click">
-          <a-avatar
-            :size="32"
-            :style="{ marginRight: '8px', cursor: 'pointer' }"
-          >
-            <img alt="avatar" :src="avatar" />
-          </a-avatar>
+          <div style="color: rgb(var(--gray-8)); cursor: pointer">
+            <a-avatar
+              :size="32"
+              :style="{
+                marginRight: '8px',
+                cursor: 'pointer',
+                backgroundColor: '#00d0b6',
+              }"
+            >
+              <img v-if="!!avatar" alt="avatar" :src="avatar" />
+              <template v-else>
+                {{ displayName }}
+              </template>
+            </a-avatar>
+            <span>
+              {{ displayName }}
+            </span>
+          </div>
           <template #content>
             <a-doption>
               <a-space v-if="debug" @click="switchRoles">
@@ -206,9 +218,15 @@ const { logout } = useUser();
 const { changeLocale } = useLocale();
 const { isFullscreen, toggle: toggleFullScreen } = useFullscreen();
 const locales = [...LOCALE_OPTIONS];
+
 const avatar = computed(() => {
   return userStore.avatar;
 });
+
+const displayName = computed(() => {
+  return userStore.nickName || userStore.name;
+});
+
 const theme = computed(() => {
   return appStore.theme;
 });

@@ -1,4 +1,4 @@
-export type RoleType = { id: number; name: string; permissions: string[] };
+export type RoleType = { id?: number; name: string; permissions?: string[] };
 export interface UserState {
   name?: string;
   nickName?: string;
@@ -13,4 +13,5 @@ export interface UserState {
   isActive?: boolean;
   isDeleted?: boolean;
   roleList?: RoleType[];
+  password?: string;
 }
