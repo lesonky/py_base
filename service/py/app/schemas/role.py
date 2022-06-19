@@ -12,7 +12,7 @@ class RoleSchema(ma.SQLAlchemyAutoSchema):
     @post_dump()
     def add_permission_code_names(self, data, many, **kwargs):
         code = data.pop('permission_code', "")
-        names = [Permission(int(x)).name for x in code.split(',')]
+        names = [Permission(int(x)).name for x in code.split(',') if x]
         data['permissions'] = names
         return data
 

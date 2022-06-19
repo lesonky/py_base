@@ -73,6 +73,7 @@ def delete_role():
         raise result.BadParam(
             f"user [{user_names}] have role, please switch role of them first")
     db.session.delete(role)
+    db.session.commit()
     return result.ok()
 
 
