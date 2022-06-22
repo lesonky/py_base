@@ -21,14 +21,18 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     account_id = db.Column(db.String(100), default="")
 
-    name = db.Column(db.String(100), unique=True)
-    nick_name = db.Column(db.String(100), nullable=False, default="")
-    phone = db.Column(db.String(30), default="")
-    email = db.Column(db.String(30), default="")
+    name = db.Column(db.String(256), unique=True)
+    nick_name = db.Column(db.String(256), nullable=False, default="")
+    phone = db.Column(db.String(256), default="")
+    email = db.Column(db.String(256), default="")
     avatar = db.Column(db.Text, default="")
 
     introduction = db.Column(db.Text, default="")
     hashed_passwd = db.Column(db.String(200))
+
+    #fields from label studio
+    is_staff = db.Column(db.Boolean, nullable=False, default=False)
+    is_superuser = db.Column(db.Boolean, nullable=False, default=False)
 
     is_active = db.Column(db.Boolean, nullable=False, default=False)
     is_deleted = db.Column(db.Boolean, nullable=False, default=False)
@@ -36,8 +40,8 @@ class User(db.Model):
 
     created_date = db.Column(db.DateTime, default=datetime.now())
     registration_date = db.Column(db.DateTime, default=datetime.now())
-    active_date = db.Column(db.DateTime)
-    login_date = db.Column(db.DateTime)
+    active_date = db.Column(db.DateTime, default=datetime.now())
+    login_date = db.Column(db.DateTime, default=datetime.now())
 
     role_id = db.Column(db.Integer, ForeignKey("roles.id"))
     role = relationship("Role")
@@ -111,6 +115,12 @@ class User(db.Model):
         return True
 
 
+class RLEnv(db.Model):
+    __tablename__ = "rl_env"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), unique=True)
+
+
 class Role(db.Model):
     __tablename__ = "roles"
 
@@ -129,6 +139,7 @@ class Role(db.Model):
 def create_admin(name, passwd):
     hashed_passwd = User.make_hashed_passwd(passwd)
     user = User(name=name, hashed_passwd=hashed_passwd)
+    user.email = "xieyu3@qq.com"
     role = Role.query.filter(Role.name == "admin").one_or_none()
     if not role:
         role = Role(name="admin")

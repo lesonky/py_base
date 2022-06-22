@@ -51,7 +51,9 @@ def login():
     user.is_logout = False
     db.session.commit()
     access_token = create_access_token(identity=user)
-    return ok({"token": access_token})
+    resp = ok({"token": access_token})
+    resp.set_cookie('token', access_token)
+    return resp
 
 
 @bp.route("/user/info", methods=["POST"])
