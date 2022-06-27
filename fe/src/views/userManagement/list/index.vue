@@ -260,7 +260,7 @@ import useUser from '@/hooks/user';
 
 import { UserState } from '@/store/modules/user/types';
 import { Pagination } from '#/global';
-import { omit } from 'lodash';
+import { omit } from 'lodash-es';
 import UserDialog from '../components/UserDialog.vue';
 
 const generateFormModel: () => QueryUserData = () => {

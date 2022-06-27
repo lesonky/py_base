@@ -39,7 +39,7 @@
               <a-tag
                 v-for="item in record.permissions"
                 :key="item"
-                color="blue"
+                :color="item === 'All' ? 'yellow' : 'blue'"
                 style="margin: 0 8px 8px 0"
                 >{{ item }}</a-tag
               >
@@ -84,6 +84,14 @@
             placeholder="请输入角色名称"
           />
         </a-form-item>
+        <a-alert
+          v-if="currentRole.permissions!.includes('All')"
+          closable
+          type="warning"
+          style="margin-bottom: 16px"
+        >
+          All 权限包含所有权限
+        </a-alert>
         <a-form-item field="permissions" label="角色权限">
           <a-checkbox-group
             v-model="currentRole.permissions"
