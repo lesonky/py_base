@@ -12,7 +12,7 @@
     "preview": "npm run build && vite preview --host",
     "type:check": "vue-tsc --noEmit --skipLibCheck",
     "lint-staged": "npx lint-staged",
-    "prepare": "cd ../ && husky install && cd -"
+    "prepare": "cd .. && npx husky install && cd -"
   },
   "lint-staged": {
     "*.{js,ts,jsx,tsx}": [
