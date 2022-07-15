@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="a-container">
     <Breadcrumb :items="['用户管理', '用户列表']" :use-i18n="false" />
     <a-card class="general-card" title="查询用户">
       <a-row>
@@ -432,7 +432,7 @@ onBeforeMount(() => {
 </script>
 
 <style lang="less" scoped>
-.container {
+.a-container {
   height: 100%;
   padding: 0 20px;
   background-color: var(--color-fill-2);

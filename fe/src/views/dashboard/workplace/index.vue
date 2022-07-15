@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="a-container">
     <div class="left-side">
       <div class="panel">
         <Banner />
@@ -47,7 +47,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.container {
+.a-container {
   display: flex;
   padding: 16px 20px;
   padding-bottom: 0;
@@ -126,7 +126,7 @@ export default {
 <style lang="less" scoped>
 // responsive
 .mobile {
-  .container {
+  .a-container {
     display: block;
   }
 

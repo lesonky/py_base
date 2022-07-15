@@ -1,5 +1,5 @@
 <template>
-  <div :class="['container', { 'has-banner': !appStore.loginBanner }]">
+  <div class="a-container" :class="{ 'has-banner': !appStore.loginBanner }">
     <div class="logo">
       <img
         alt="logo"
@@ -29,7 +29,7 @@ const appStore = useAppStore();
 </script>
 
 <style lang="less" scoped>
-.container {
+.a-container {
   display: flex;
   height: 100vh;
 
@@ -85,7 +85,7 @@ const appStore = useAppStore();
 <style lang="less" scoped>
 // responsive
 @media (max-width: @screen-lg) {
-  .container {
+  .a-container {
     .banner {
       width: 25%;
     }

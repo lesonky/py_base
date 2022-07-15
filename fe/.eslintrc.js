@@ -34,6 +34,7 @@ module.exports = {
         project: path.resolve(__dirname, './tsconfig.json'),
       },
     },
+    'import/core-modules': ['virtual:windi.css', 'virtual:windi-devtools'],
   },
   rules: {
     'prettier/prettier': 1,

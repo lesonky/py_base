@@ -1,8 +1,18 @@
+const tailwindAt = [
+  'tailwind',
+  'apply',
+  'variants',
+  'responsive',
+  'screen',
+  'layer',
+];
+
 module.exports = {
   extends: [
     'stylelint-config-standard',
     'stylelint-config-rational-order',
     'stylelint-config-prettier',
+    'stylelint-config-recommended-vue',
   ],
   defaultSeverity: 'warning',
   plugins: ['stylelint-order'],
@@ -10,7 +20,7 @@ module.exports = {
     'at-rule-no-unknown': [
       true,
       {
-        ignoreAtRules: ['plugin'],
+        ignoreAtRules: ['plugin', /^screen-.*?/, ...tailwindAt],
       },
     ],
     'rule-empty-line-before': [
