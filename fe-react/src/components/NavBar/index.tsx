@@ -20,7 +20,6 @@ import {
   IconPoweroff,
   IconExperiment,
   IconDashboard,
-  IconInteraction,
   IconTag,
 } from '@arco-design/web-react/icon';
 import { useSelector, useDispatch } from 'react-redux';
@@ -41,7 +40,7 @@ function Navbar({ show }: { show: boolean }) {
   const userInfo = useSelector((state: GlobalState) => state.userInfo);
   const dispatch = useDispatch();
 
-  const [_, setUserStatus] = useStorage('userStatus');
+  const [, setUserStatus] = useStorage('userStatus');
   const [role, setRole] = useStorage('userRole', 'admin');
 
   const { setLang, lang, theme, setTheme } = useContext(GlobalContext);
