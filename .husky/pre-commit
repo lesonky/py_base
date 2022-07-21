@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-cd fe && npm run lint-staged && cd -
+cd fe && npm run lint-staged && cd - && cd fe-react && npm run pre-commit && cd -
+
