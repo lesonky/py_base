@@ -11,6 +11,6 @@ SECRET_KEY = 'gWYplfrFgqAkWSWueUjGgjDWudGZsiZDKFirSa'
 
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-SQLALCHEMY_DATABASE_URI = "mysql://webace_base:webace_base_123@192.168.0.14:3308/webace_base"
+SQLALCHEMY_DATABASE_URI = "mysql://webace:webace@192.168.0.14:3308/dodo_vision"
 
 AVATAR_PATH = "/opt/data/avatar"
