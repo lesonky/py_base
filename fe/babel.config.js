@@ -1,3 +1,13 @@
 module.exports = {
-  plugins: ['@vue/babel-plugin-jsx'],
+  plugins: [
+    '@vue/babel-plugin-jsx',
+    [
+      'import',
+      {
+        libraryName: '@icon-park/vue-next',
+        libraryDirectory: 'es/icons',
+        camel2DashComponentName: false,
+      },
+    ],
+  ],
 };

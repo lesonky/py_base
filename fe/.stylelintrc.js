@@ -35,5 +35,6 @@ module.exports = {
         ignorePseudoClasses: ['deep'],
       },
     ],
+    'no-empty-source': [null],
   },
 };

@@ -32,7 +32,8 @@
   "dependencies": {
     "@arco-design/web-vue": "^2.29.0",
     "@types/mockjs": "^1.0.4",
-    "@vueuse/core": "^8.6.0",
+    "@vueuse/core": "^9.1.0",
+    "@icon-park/vue-next": "^1.4.1",
     "arco-design-pro-vue": "^2.5.3",
     "axios": "^0.24.0",
     "dayjs": "^1.10.7",

@@ -10,5 +10,15 @@
   "i18n-ally.displayLanguage": "zh-CN",
   "i18n-ally.dirStructure": "auto",
   "i18n-ally.editor.preferEditor": true,
-  "i18n-ally.translate.deepl.useFreeApiEntry": true
+  "i18n-ally.translate.deepl.useFreeApiEntry": true,
+  "less.validate": false,
+  "scss.validate": false,
+  "css.validate": false,
+  "stylelint.validate": ["css", "less", "postcss", "vue"],
+  "windicss.includeLanguages": {
+    "vue": true,
+    "jsx": true,
+    "tsx": true,
+    "windicss": true
+  }
 }
