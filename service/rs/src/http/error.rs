@@ -10,12 +10,18 @@ pub type ApiJsonResult<T, E = Error> = Result<Json<Resp<T>>, E>;
 pub enum Error {
     #[error("authentication required")]
     Unauthorized,
+
     #[error("user may not perform the action")]
     Forbidden,
+
     #[error("request path not found")]
     NotFound,
+
     #[error(transparent)]
     SeaOrmDbError(#[from] sea_orm::DbErr),
+
+    #[error(transparent)]
+    SqlxError(#[from] sqlx::Error),
 
     #[error("row not found in db")]
     RowNotFound,

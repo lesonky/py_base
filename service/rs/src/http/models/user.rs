@@ -1,25 +1,34 @@
 use crate::error::{Result, Error};
 
-use entity::user;
-use entity::user::Model as UserModel;
-use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
-use sea_orm::{Condition, DatabaseConnection};
+use sqlx::FromRow;
+use serde::{Serialize, Deserialize};
+use sqlx::mysql::MySqlPool as DBPool;
 
+#[derive(Debug, FromRow, Clone, Deserialize, Serialize)]
 pub struct User {
-    id: i64,
+    pub id: i64,
+    pub name: String,
+    pub account_id: String
+}
+
+#[derive(Default)]
+pub struct FilterOptions<'a> {
+    pub id: Option<i64>,
+    pub name: Option<&'a str>,
+    pub account_id: Option<&'a str>,
+    pub hashed_passwd: Option<&'a str>,
 }
 
 impl User {
-    pub async fn find(db: &DatabaseConnection, name: &str, passwd: &str) -> Result<UserModel> {
-        use user::Column as Col;
-        let hashed_passwd = passwd;
-        let conds = Condition::all()
-            .add(Col::Name.eq(name))
-            .add(Col::HashedPasswd.eq(hashed_passwd));
-        let user_model: Option<UserModel> = user::Entity::find().filter(conds).one(db).await?;
-        user_model.ok_or(Error::RowNotFound{})
-    }
-
-    pub async fn find_by_id(id: i64) -> Result<User> {
+    pub async fn find_one(db: &DBPool, options: &FilterOptions<'_>) -> Result<User> {
+        let row = sqlx::query_file_as!(
+            User,
+            "sqls/user/find_one.sql",
+            options.id, options.id,
+            options.name, options.name,
+            options.account_id, options.account_id,
+            options.hashed_passwd, options.hashed_passwd,
+        ).fetch_one(db).await.map_err(|_|Error::RowNotFound);
+        row
     }
 }
