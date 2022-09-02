@@ -1,10 +1,8 @@
-use crate::http::resp::json;
-use crate::http::Error;
-use crate::http::Result;
+use crate::api::resp::json;
+use crate::error::ApiJsonResult;
+use crate::error::{Error, Result};
 use axum::routing::get;
 use axum::Router;
-
-use super::ApiJsonResult;
 
 pub fn router() -> Router {
     Router::new()

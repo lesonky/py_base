@@ -1,14 +1,10 @@
 use super::util::jwt;
-use super::{json, ApiJsonResult};
-use crate::config::Config;
-use crate::models::user::FilterOptions;
-use crate::models::User;
+use crate::api::{json, ApiContext, ApiJsonResult};
+use crate::models::user::{QueryFilter, User};
+
 use axum::extract::Extension;
 use axum::routing::{get, post};
 use axum::{extract::Query, Json, Router};
-use log::debug;
-//use sea_orm::DatabaseConnection;
-use crate::http::ApiContext;
 
 pub fn router() -> Router {
     Router::new()
@@ -36,7 +32,7 @@ async fn user_login(
     Extension(ctx): Extension<ApiContext>,
     Json(req): Json<LoginUserReq>,
 ) -> ApiJsonResult<LoginUserResp> {
-    let filters = FilterOptions {
+    let filters = QueryFilter {
         id: Some(1),
         name: Some(&req.name),
         hashed_passwd: Some(&req.password),
@@ -56,7 +52,7 @@ async fn user_detail(
 ) -> ApiJsonResult<User> {
     let user = User::find_one(
         &ctx.db,
-        &FilterOptions {
+        &QueryFilter {
             id: Some(req.id),
             ..Default::default()
         },

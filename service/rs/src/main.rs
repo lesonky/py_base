@@ -2,7 +2,7 @@ use log::info;
 use sea_orm::Database;
 use std::env;
 
-use webace_http_base::{config::Config, http};
+use webace_http_base::{api, config::Config};
 
 fn parse_config_from_env() -> Config {
     //TODO: use clap to parse config
@@ -16,10 +16,10 @@ fn parse_config_from_env() -> Config {
     info!("http server run on {}:{}", host, port);
     let config = Config {
         database_url: db_url.clone(),
-        host: host,
-        port: port,
-        jwt_secret: jwt_secret,
-        passwd_salt: passwd_salt,
+        host,
+        port,
+        jwt_secret,
+        passwd_salt,
     };
     config
 }
@@ -33,6 +33,6 @@ async fn main() -> anyhow::Result<()> {
         .await
         .expect("Database connection failed");
 
-    http::serve(config, db).await?;
+    api::serve(config, db).await?;
     Ok(())
 }

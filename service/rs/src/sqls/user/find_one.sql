@@ -11,3 +11,4 @@ where (? is null
        or account_id = ?)
   and (? is null
        or hashed_passwd = ?)
+limit 1

@@ -3,21 +3,21 @@ use anyhow::Context;
 use axum::extract::Extension;
 use axum::{Router, Server};
 use sea_orm::DatabaseConnection;
-use tower::ServiceBuilder;
 use std::sync::Arc;
+use tower::ServiceBuilder;
 
 use sqlx::mysql::MySqlPool;
 use sqlx::mysql::MySqlPoolOptions;
 
 pub mod error;
-pub mod models;
 mod resp;
 mod test;
 mod user;
 mod util;
 
-use error::{ApiJsonResult, Error, Result};
+use error::ApiJsonResult;
 use resp::json;
+use resp::Resp;
 
 #[derive(Clone)]
 pub struct ApiContext {
@@ -34,10 +34,14 @@ fn router() -> Router {
 pub async fn serve(config: Config, db: DatabaseConnection) -> anyhow::Result<()> {
     let addr = format!("{}:{}", &config.host, &config.port);
     let addr = addr.parse()?;
-    let mysql_db = MySqlPoolOptions::new().max_connections(50).connect(&config.database_url).await.context("could not connect to database url")?;
+    let mysql_db = MySqlPoolOptions::new()
+        .max_connections(50)
+        .connect(&config.database_url)
+        .await
+        .context("could not connect to database url")?;
     let ctx = ApiContext {
         config: Arc::new(config.clone()),
-        db: mysql_db
+        db: mysql_db,
     };
 
     let layers = ServiceBuilder::new()
