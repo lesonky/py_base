@@ -1,6 +1,6 @@
 use super::util::jwt;
 use crate::api::{json, ApiContext, ApiJsonResult};
-use crate::models::user::{QueryFilter, User};
+use crate::models::user::{EditUserSchema, QueryFilter, User};
 
 use axum::extract::Extension;
 use axum::routing::{get, post};
@@ -9,6 +9,7 @@ use axum::{extract::Query, Json, Router};
 pub fn router() -> Router {
     Router::new()
         .route("/api/user/login", post(user_login))
+        .route("/api/user/edit", post(user_edit))
         .route("/api/user/detail", get(user_detail))
 }
 
@@ -59,4 +60,11 @@ async fn user_detail(
     )
     .await?;
     Ok(json(&user))
+}
+
+async fn user_edit(
+    Extension(_ctx): Extension<ApiContext>,
+    Json(_req): Json<EditUserSchema>,
+) -> ApiJsonResult<User> {
+    unimplemented!()
 }
