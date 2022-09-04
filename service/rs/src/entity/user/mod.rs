@@ -50,7 +50,7 @@ impl User {
         Ok(row)
     }
 
-    pub async fn find_page(db: &DBPool, options: &QueryFilter<'_>) -> Result<(Vec<User>, i64)> {
+    pub async fn find_page(db: &DBPool, options: &QueryFilter<'_>) -> Result<(Vec<User>, u64)> {
         let total_count = sqlx::query_scalar!(
             r#"
             select 
@@ -72,6 +72,9 @@ impl User {
         )
         .fetch_one(db)
         .await?;
+
+        let limit = options.page_size.unwrap_or(10);
+        let offset = (options.page_num.unwrap_or(1) - 1) * limit;
 
         let rows: Vec<User> = sqlx::query_as!(
             User,
@@ -97,12 +100,12 @@ impl User {
             options.account_id,
             options.hashed_passwd,
             options.hashed_passwd,
-            options.limit.unwrap_or(10),
-            options.offset.unwrap_or(0)
+            limit,
+            offset
         )
         .fetch_all(db)
         .await?;
-        return Ok((rows, total_count));
+        return Ok((rows, total_count as u64));
     }
 
     pub async fn update_one(db: &DBPool, data: EditUserSchema) -> Result<u64> {

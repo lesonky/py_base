@@ -11,6 +11,7 @@ use sqlx::mysql::MySqlPoolOptions;
 
 pub mod error;
 mod resp;
+mod role;
 mod test;
 mod user;
 mod util;
@@ -29,6 +30,7 @@ fn router() -> Router {
     Router::new()
         .nest("/api/test", test::router())
         .merge(user::router())
+        .merge(role::router())
 }
 
 pub async fn serve(config: Config, db: DatabaseConnection) -> anyhow::Result<()> {

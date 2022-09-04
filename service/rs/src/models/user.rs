@@ -26,6 +26,6 @@ pub struct QueryFilter<'a> {
     pub name: Option<&'a str>,
     pub account_id: Option<&'a str>,
     pub hashed_passwd: Option<&'a str>,
-    pub limit: Option<u64>,
-    pub offset: Option<u64>,
+    pub page_num: Option<u64>,
+    pub page_size: Option<u64>,
 }
