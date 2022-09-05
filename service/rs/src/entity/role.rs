@@ -3,13 +3,14 @@ use crate::models::role::*;
 use crate::DBPool;
 
 impl Role {
-    pub async fn find_by_id(db: &DBPool, id: i64) -> Result<Role> {
+    pub async fn find_by_id(db: &DBPool, id: u64) -> Result<Role> {
         let row = sqlx::query_as!(
             Role,
             r#"
             select
                 id,
-                permissons
+                name,
+                permissions
             from role where id = ?
             "#,
             id
@@ -28,7 +29,8 @@ impl Role {
             r#"
             select 
                 id,
-                permissons
+                name,
+                permissions
             from role
             "#
         )
@@ -37,7 +39,52 @@ impl Role {
         return Ok((rows, total_count as i64));
     }
 
-    pub async fn delete_one(db: &DBPool, id: i64) -> Result<()> {
-        unimplemented!()
+    pub async fn delete_one(db: &DBPool, id: i64) -> Result<u64> {
+        let ret = sqlx::query!(
+            r#"
+            delete 
+                from role 
+            where role.id = ? 
+                limit 1"#,
+            id
+        )
+        .execute(db)
+        .await?;
+        Ok(ret.rows_affected())
+    }
+
+    pub async fn update_one(db: &DBPool, data: UpdateRoleSchema) -> Result<u64> {
+        let ret = sqlx::query!(
+            r#"
+            update role
+            set 
+                name = coalesce(?, role.name),
+                permissions = coalesce(?, role.permissions)
+            where id = ?
+            "#,
+            data.name,
+            data.permissions,
+            data.id
+        )
+        .execute(db)
+        .await?;
+        Ok(ret.rows_affected())
+    }
+
+    pub async fn insert_one(db: &DBPool, data: InsertRoleSchema) -> Result<u64> {
+        let row_id = sqlx::query_as!(
+            Role,
+            r#"
+            insert into role 
+            (name, permissions)
+            values (?, ?)
+            "#,
+            data.name,
+            data.permissions
+        )
+        .execute(db)
+        .await?
+        .last_insert_id();
+        Ok(row_id)
     }
 }
