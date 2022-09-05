@@ -18,7 +18,7 @@ pub struct CreateUserSchema {
 
 #[derive(Default, Serialize, Deserialize)]
 pub struct EditUserSchema {
-    pub id: u64,
+    pub id: i64,
     pub name: Option<String>,
     pub password: Option<String>,
     pub role_id: Option<u64>,
@@ -30,6 +30,7 @@ pub struct QueryFilter<'a> {
     pub name: Option<&'a str>,
     pub account_id: Option<&'a str>,
     pub hashed_passwd: Option<&'a str>,
+    pub role_id: Option<i64>,
     pub page_num: Option<u64>,
     pub page_size: Option<u64>,
 }

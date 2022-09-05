@@ -64,10 +64,13 @@ async fn detail_user(
 }
 
 async fn edit_user(
-    Extension(_ctx): Extension<ApiContext>,
-    Json(_req): Json<EditUserSchema>,
+    Extension(ctx): Extension<ApiContext>,
+    Json(req): Json<EditUserSchema>,
 ) -> ApiJsonResult<User> {
-    unimplemented!()
+    let id = req.id;
+    User::update_one(&ctx.db, req).await?;
+    let user = User::find_by_id(&ctx.db, id).await?;
+    return Ok(json(&user));
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]

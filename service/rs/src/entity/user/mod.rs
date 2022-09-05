@@ -47,6 +47,7 @@ impl User {
               and (? is null or user.name = ?)
               and (? is null or user.account_id = ?)
               and (? is null or user.hashed_passwd = ?)
+              and (? is null or user.role_id = ?)
             limit 1"#,
             options.id,
             options.id,
@@ -56,6 +57,8 @@ impl User {
             options.account_id,
             options.hashed_passwd,
             options.hashed_passwd,
+            options.role_id,
+            options.role_id,
         )
         .fetch_one(db)
         .await?;
@@ -129,20 +132,22 @@ impl User {
 
     pub async fn update_one(db: &DBPool, data: EditUserSchema) -> Result<u64> {
         let hashed_passwd = data.password;
-        sqlx::query!(
+        let ret = sqlx::query!(
             r#"
             update user
             set name = coalesce(?, user.name),
-                hashed_passwd = coalesce(?, user.hashed_passwd)
+                hashed_passwd = coalesce(?, user.hashed_passwd),
+                role_id = coalesce(?, user.role_id)
             where id = ?
             "#,
             data.name,
             hashed_passwd,
-            data.id
+            data.role_id,
+            data.id,
         )
         .execute(db)
         .await?;
-        Ok(data.id)
+        Ok(ret.rows_affected())
     }
 
     pub async fn insert_one(db: &DBPool, data: CreateUserSchema) -> Result<u64> {
