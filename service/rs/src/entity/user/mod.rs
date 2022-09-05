@@ -1,6 +1,7 @@
 use crate::error::Result;
 use crate::models::user::*;
 use crate::DBPool;
+use futures::TryStreamExt;
 use sqlx::MySql;
 use sqlx::QueryBuilder;
 use uuid::Uuid;
@@ -8,33 +9,44 @@ use uuid::Uuid;
 impl User {
     pub async fn find_by_id(db: &DBPool, id: i64) -> Result<User> {
         let row = sqlx::query_as!(
-            User,
+            UserFromQuery,
             r#"
             select
-                id,
-                name,
-                account_id
-            from user where id = ?"#,
+                user.id as id,
+                user.name as name,
+                user.account_id as account_id,
+                role.id as role_id,
+                role.name as role_name,
+                role.permissions as role_permissions
+            from user 
+            left join role
+                on user.role_id = role.id
+            where user.id = ?"#,
             id
         )
         .fetch_one(db)
         .await?;
-        Ok(row)
+        Ok(row.into())
     }
 
     pub async fn find_one(db: &DBPool, options: &QueryFilter<'_>) -> Result<User> {
         let row = sqlx::query_as!(
-            User,
+            UserFromQuery,
             r#"
             select 
-              id,
-              name,
-              account_id
+                user.id as id,
+                user.name as name,
+                user.account_id as account_id,
+                role.id as role_id,
+                role.name as role_name,
+                role.permissions as role_permissions
             from user
-            where (? is null or id = ?)
-              and (? is null or name = ?)
-              and (? is null or account_id = ?)
-              and (? is null or hashed_passwd = ?)
+            left join role
+                on user.role_id = role.id
+            where (? is null or user.id = ?)
+              and (? is null or user.name = ?)
+              and (? is null or user.account_id = ?)
+              and (? is null or user.hashed_passwd = ?)
             limit 1"#,
             options.id,
             options.id,
@@ -47,7 +59,7 @@ impl User {
         )
         .fetch_one(db)
         .await?;
-        Ok(row)
+        Ok(row.into())
     }
 
     pub async fn find_page(db: &DBPool, options: &QueryFilter<'_>) -> Result<(Vec<User>, u64)> {
@@ -77,17 +89,22 @@ impl User {
         let offset = (options.page_num.unwrap_or(1) - 1) * limit;
 
         let rows: Vec<User> = sqlx::query_as!(
-            User,
+            UserFromQuery,
             r#"
-            select
-                id,
-                name,
-                account_id
+            select 
+                user.id as id,
+                user.name as name,
+                user.account_id as account_id,
+                role.id as role_id,
+                role.name as role_name,
+                role.permissions as role_permissions
             from user
-            where (? is null or id = ?)
-              and (? is null or name = ?)
-              and (? is null or account_id = ?)
-              and (? is null or hashed_passwd = ?)
+            left join role
+                on user.role_id = role.id
+            where (? is null or user.id = ?)
+              and (? is null or user.name = ?)
+              and (? is null or user.account_id = ?)
+              and (? is null or user.hashed_passwd = ?)
             order by user.id desc
             limit ?
             offset ?
@@ -103,7 +120,9 @@ impl User {
             limit,
             offset
         )
-        .fetch_all(db)
+        .fetch(db)
+        .map_ok(|x| x.into())
+        .try_collect()
         .await?;
         return Ok((rows, total_count as u64));
     }
