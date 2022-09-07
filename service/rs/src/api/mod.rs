@@ -11,10 +11,12 @@ use sqlx::mysql::MySqlPoolOptions;
 
 pub mod error;
 mod resp;
+mod util;
+
+mod files;
 mod role;
 mod test;
 mod user;
-mod util;
 
 use error::ApiJsonResult;
 use resp::json;
@@ -31,6 +33,7 @@ fn router() -> Router {
         .nest("/api/test", test::router())
         .merge(user::router())
         .merge(role::router())
+        .merge(files::router())
 }
 
 pub async fn serve(config: Config, db: DatabaseConnection) -> anyhow::Result<()> {
