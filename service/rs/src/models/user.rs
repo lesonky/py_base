@@ -1,4 +1,5 @@
 use super::role::Role;
+use super::Permission;
 use serde::{Deserialize, Serialize};
 use sqlx::types::JsonValue;
 use sqlx::FromRow;

@@ -1,6 +1,7 @@
 use crate::error::Result;
 use crate::models::role::*;
 use crate::DBPool;
+use futures::TryStreamExt;
 
 impl Role {
     pub async fn find_by_id(db: &DBPool, id: u64) -> Result<Role> {
@@ -17,7 +18,7 @@ impl Role {
         )
         .fetch_one(db)
         .await?;
-        Ok(row)
+        Ok(row.into())
     }
 
     pub async fn find_all(db: &DBPool) -> Result<(Vec<Role>, i64)> {

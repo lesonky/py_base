@@ -2,10 +2,10 @@ use super::error::ApiJsonResult;
 use super::ApiContext;
 use crate::api::json;
 use crate::models::role::{InsertRoleSchema, Role, UpdateRoleSchema};
+use crate::models::Permission;
 use axum::routing::{get, post};
 use axum::{Extension, Json, Router};
-use serde::Deserialize;
-use serde_json::value::to_value;
+use serde::{Deserialize, Serialize};
 
 pub fn router() -> Router {
     Router::new()
@@ -13,6 +13,7 @@ pub fn router() -> Router {
         .route("/api/role/create", post(create_role))
         .route("/api/role/delete", post(delete_role))
         .route("/api/role/update", post(update_role))
+        .route("/api/permission/list", get(list_permisson))
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
@@ -37,7 +38,7 @@ async fn create_role(
     Extension(ctx): Extension<ApiContext>,
     Json(req): Json<CreateRoleReq>,
 ) -> ApiJsonResult<Role> {
-    let permissions = to_value(req.permissions).unwrap();
+    let permissions = Permission::to_json_value(&req.permissions);
     let data = InsertRoleSchema {
         name: req.name,
         permissions: Some(permissions),
@@ -71,7 +72,7 @@ async fn update_role(
     Extension(ctx): Extension<ApiContext>,
     Json(req): Json<UpdateRoleReq>,
 ) -> ApiJsonResult<u64> {
-    let permissions = req.permissions.map(|x| to_value(x).unwrap());
+    let permissions = req.permissions.map(|x| Permission::to_json_value(&x));
     let data = UpdateRoleSchema {
         id: req.id,
         name: req.name,
@@ -79,4 +80,14 @@ async fn update_role(
     };
     let rows_affected = Role::update_one(&ctx.db, data).await?;
     Ok(json(&rows_affected))
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+struct ListPermissionResp {
+    permissions: Vec<String>,
+}
+
+async fn list_permisson() -> ApiJsonResult<ListPermissionResp> {
+    let permissions = Permission::all_labels();
+    Ok(json(&ListPermissionResp { permissions }))
 }

@@ -1,4 +1,5 @@
-use serde::{Deserialize, Serialize};
+use super::permission::Permission;
+use serde::{Deserialize, Serialize, Serializer};
 use sqlx::types::JsonValue;
 use sqlx::FromRow;
 
@@ -6,11 +7,17 @@ use sqlx::FromRow;
 pub struct Role {
     pub id: i64,
     pub name: String,
+
+    #[serde(serialize_with = "ser_permission_to_names")]
     pub permissions: Option<JsonValue>,
 }
 
-pub enum Permission {
-    All = 0,
+fn ser_permission_to_names<S>(x: &Option<JsonValue>, s: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    let names = Permission::json_value_to_names(x);
+    names.serialize(s)
 }
 
 pub struct UpdateRoleSchema {

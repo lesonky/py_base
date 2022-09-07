@@ -1,6 +1,7 @@
 use log::info;
 use sea_orm::Database;
 use std::env;
+use std::path::PathBuf;
 
 use webace_http_base::{api, config::Config};
 
@@ -11,6 +12,9 @@ fn parse_config_from_env() -> Config {
     let port = env::var("PORT").expect("PORT is not set in .env file");
     let jwt_secret = env::var("JWT_SECRET").expect("JWT_SECRET is not in .env file");
     let passwd_salt = env::var("PASSWD_SALT").expect("JWT_SECRET is not in .env file");
+    let avatar_root_s = env::var("AVATAR_ROOT").expect("AVATAR_ROOT is not set in .env file");
+    let mut avatar_root = PathBuf::new();
+    avatar_root.push(avatar_root_s);
 
     info!("config: DATABASE_URL {}", &db_url);
     info!("http server run on {}:{}", host, port);
@@ -20,6 +24,7 @@ fn parse_config_from_env() -> Config {
         port,
         jwt_secret,
         passwd_salt,
+        avatar_root,
     };
     config
 }

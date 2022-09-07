@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 tokio = { version = "1.18.1", features = ["full"] }
-axum = "0.5.15"
+axum = {version = "0.5.15", features=["multipart"]}
 tower = "0.4.12"
 tower-http = { version = "0.3.3", features = ["fs"] }
 tower-cookies = "0.6.0"
@@ -28,3 +28,5 @@ bcrypt = "0.13.0"
 chrono = "0.4.22"
 sqlx = {version="0.6.1", features=["mysql"]}
 futures = "0.3.24"
+tokio-util = {version="0.7.3",features=["io"]}
+num_enum = "0.5.7"
