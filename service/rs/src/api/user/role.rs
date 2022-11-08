@@ -4,7 +4,6 @@ use crate::models::user::Permission;
 use crate::prelude::*;
 use axum::routing::{get, post};
 use axum::{Extension, Json, Router};
-use serde::{Deserialize, Serialize};
 
 pub fn router() -> Router {
     Router::new()
