@@ -1,5 +1,6 @@
+use super::ApiJsonResult;
 use axum::{http::StatusCode, Json};
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Resp<T> {
@@ -11,14 +12,14 @@ pub struct Resp<T> {
 
 impl<T> Resp<T>
 where
-    T: Serialize + DeserializeOwned + Clone,
+    T: Serialize,
 {
-    pub fn from_result(arg: &T) -> Self {
+    pub fn from_result(arg: T) -> Self {
         Self {
             code: 200,
             success: true,
             message: Some("ok".to_string()),
-            data: Some(arg.clone()),
+            data: Some(arg),
         }
     }
     pub fn from_error_info(code: StatusCode, info: &str) -> Self {
@@ -40,13 +41,28 @@ where
     }
 }
 
-pub fn json<T>(arg: &T) -> Json<Resp<T>>
+pub fn json<T>(arg: T) -> Json<Resp<T>>
 where
-    T: Serialize + DeserializeOwned + Clone,
+    T: Serialize,
 {
     Json(Resp::from_result(arg))
 }
 
 pub fn json_bad_param(message: Option<&str>) -> Json<Resp<()>> {
     Json(Resp::bad_param(message))
+}
+
+pub trait IntoOkJson {
+    fn into_ok_json(self) -> ApiJsonResult<Self>
+    where
+        Self: Sized;
+}
+
+impl<T> IntoOkJson for T
+where
+    T: Serialize,
+{
+    fn into_ok_json(self) -> ApiJsonResult<Self> {
+        Ok(json(self))
+    }
 }

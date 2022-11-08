@@ -3,7 +3,7 @@ use sea_orm::Database;
 use std::env;
 use std::path::PathBuf;
 
-use webace_http_base::{api, config::Config};
+use webace_http_base::{api, ctx::Config};
 
 fn parse_config_from_env() -> Config {
     //TODO: use clap to parse config
@@ -34,10 +34,10 @@ async fn main() -> anyhow::Result<()> {
     dotenv::dotenv().ok();
     env_logger::init();
     let config = parse_config_from_env();
-    let db = Database::connect(&config.database_url)
+    let _db = Database::connect(&config.database_url)
         .await
         .expect("Database connection failed");
 
-    api::serve(config, db).await?;
+    api::serve(config).await?;
     Ok(())
 }

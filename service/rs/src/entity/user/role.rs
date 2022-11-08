@@ -1,7 +1,6 @@
-use crate::error::Result;
-use crate::models::role::*;
+use crate::models::user::role::*;
+use crate::prelude::*;
 use crate::DBPool;
-use futures::TryStreamExt;
 
 impl Role {
     pub async fn find_by_id(db: &DBPool, id: u64) -> Result<Role> {

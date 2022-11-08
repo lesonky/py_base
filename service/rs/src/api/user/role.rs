@@ -1,8 +1,6 @@
-use super::error::ApiJsonResult;
-use super::ApiContext;
-use crate::api::json;
-use crate::models::role::{InsertRoleSchema, Role, UpdateRoleSchema};
-use crate::models::Permission;
+use crate::models::user::role::{InsertRoleSchema, Role, UpdateRoleSchema};
+use crate::models::user::Permission;
+use crate::prelude::*;
 use axum::routing::{get, post};
 use axum::{Extension, Json, Router};
 use serde::{Deserialize, Serialize};
@@ -25,7 +23,7 @@ struct ListPageResp {
 async fn list_role(Extension(ctx): Extension<ApiContext>) -> ApiJsonResult<ListPageResp> {
     let (items, total) = Role::find_all(&ctx.db).await?;
     let resp = ListPageResp { items, total };
-    Ok(json(&resp))
+    resp.into_ok_json()
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -45,7 +43,7 @@ async fn create_role(
     };
     let role_id = Role::insert_one(&ctx.db, data).await?;
     let role = Role::find_by_id(&ctx.db, role_id).await?;
-    Ok(json(&role))
+    role.into_ok_json()
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -58,7 +56,7 @@ async fn delete_role(
     Json(req): Json<DeleteRoleReq>,
 ) -> ApiJsonResult<u64> {
     let rows_affected = Role::delete_one(&ctx.db, req.id).await?;
-    Ok(json(&rows_affected))
+    rows_affected.into_ok_json()
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -79,7 +77,7 @@ async fn update_role(
         permissions,
     };
     let rows_affected = Role::update_one(&ctx.db, data).await?;
-    Ok(json(&rows_affected))
+    rows_affected.into_ok_json()
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -89,5 +87,6 @@ struct ListPermissionResp {
 
 async fn list_permisson() -> ApiJsonResult<ListPermissionResp> {
     let permissions = Permission::all_labels();
-    Ok(json(&ListPermissionResp { permissions }))
+    let resp = ListPermissionResp { permissions };
+    resp.into_ok_json()
 }

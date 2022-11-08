@@ -1,13 +1,14 @@
-use super::util::jwt;
-use crate::api::{json, ApiContext, ApiJsonResult};
+use super::jwt;
 use crate::models::user::{EditUserSchema, QueryFilter, User};
+use crate::prelude::*;
 use axum::body::StreamBody;
-use axum::http::{header, StatusCode};
+use axum::http::{StatusCode};
 use tokio_util::io::ReaderStream;
 
 use axum::response::IntoResponse;
 use log::debug;
 
+use super::schemas::*;
 use axum::extract::Extension;
 use axum::extract::{ContentLengthLimit, Multipart};
 use axum::routing::{get, post};
@@ -26,22 +27,6 @@ pub fn router() -> Router {
         .route("/api/user/avatar", get(access_avatar))
 }
 
-#[derive(serde::Deserialize, Debug)]
-struct LoginUserReq {
-    name: String,
-    password: String,
-}
-
-#[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
-struct LoginUserResp {
-    token: String,
-}
-
-#[derive(serde::Deserialize, Debug)]
-struct IdReq {
-    id: i64,
-}
-
 async fn login_user(
     Extension(ctx): Extension<ApiContext>,
     Json(req): Json<LoginUserReq>,
@@ -57,7 +42,7 @@ async fn login_user(
     let resp = LoginUserResp {
         token: token.to_string(),
     };
-    Ok(json(&resp))
+    resp.into_ok_json()
 }
 
 async fn detail_user(
@@ -72,7 +57,7 @@ async fn detail_user(
         },
     )
     .await?;
-    Ok(json(&user))
+    user.into_ok_json()
 }
 
 async fn edit_user(
@@ -82,7 +67,7 @@ async fn edit_user(
     let id = req.id;
     User::update_one(&ctx.db, req).await?;
     let user = User::find_by_id(&ctx.db, id).await?;
-    return Ok(json(&user));
+    user.into_ok_json()
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
@@ -110,7 +95,7 @@ async fn list_user(
     };
     let (items, total) = User::find_page(&ctx.db, &filter).await?;
     let resp = ListPageResp { items, total };
-    return Ok(json(&resp));
+    resp.into_ok_json()
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
