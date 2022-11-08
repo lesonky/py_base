@@ -4,6 +4,8 @@ pub mod entity;
 pub mod models;
 
 use sqlx::MySqlPool as DBPool;
+
+pub use api::core::schemas;
 mod prelude {
     pub use super::api::core::error::Result;
     pub use super::api::core::ApiJsonResult;

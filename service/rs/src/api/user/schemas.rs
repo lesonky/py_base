@@ -1,4 +1,3 @@
-use crate::models::user::Role;
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Debug)]
@@ -10,17 +9,6 @@ pub struct LoginUserReq {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct LoginUserResp {
     pub token: String,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct IdReq {
-    pub id: i64,
-}
-
-#[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
-pub struct ListPageResp {
-    pub items: Vec<Role>,
-    pub total: i64,
 }
 
 #[derive(Deserialize, Debug, Clone)]

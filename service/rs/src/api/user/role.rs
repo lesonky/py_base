@@ -2,6 +2,7 @@ use super::schemas::*;
 use crate::models::user::role::{InsertRoleSchema, Role, UpdateRoleSchema};
 use crate::models::user::Permission;
 use crate::prelude::*;
+use crate::schemas::*;
 use axum::routing::{get, post};
 use axum::{Extension, Json, Router};
 
@@ -17,7 +18,7 @@ pub fn router() -> Router {
 pub struct RoleAPI {}
 
 impl RoleAPI {
-    async fn list(Extension(ctx): Extension<ApiContext>) -> ApiJsonResult<ListPageResp> {
+    async fn list(Extension(ctx): Extension<ApiContext>) -> ApiJsonResult<ListPageResp<Role>> {
         let (items, total) = Role::find_all(&ctx.db).await?;
         let resp = ListPageResp { items, total };
         resp.into_ok_json()
@@ -39,7 +40,7 @@ impl RoleAPI {
 
     async fn delete(
         Extension(ctx): Extension<ApiContext>,
-        Json(req): Json<DeleteRoleReq>,
+        Json(req): Json<IDReq>,
     ) -> ApiJsonResult<u64> {
         let rows_affected = Role::delete_one(&ctx.db, req.id).await?;
         rows_affected.into_ok_json()

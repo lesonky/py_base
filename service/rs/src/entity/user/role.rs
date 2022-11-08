@@ -20,7 +20,7 @@ impl Role {
         Ok(row.into())
     }
 
-    pub async fn find_all(db: &DBPool) -> Result<(Vec<Role>, i64)> {
+    pub async fn find_all(db: &DBPool) -> Result<(Vec<Role>, u64)> {
         let total_count = sqlx::query_scalar!(r#"select count(*) from role"#)
             .fetch_one(db)
             .await?;
@@ -36,10 +36,10 @@ impl Role {
         )
         .fetch_all(db)
         .await?;
-        return Ok((rows, total_count as i64));
+        return Ok((rows, total_count as u64));
     }
 
-    pub async fn delete_one(db: &DBPool, id: i64) -> Result<u64> {
+    pub async fn delete_one(db: &DBPool, id: u64) -> Result<u64> {
         let ret = sqlx::query!(
             r#"
             delete 

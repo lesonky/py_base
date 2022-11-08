@@ -1,8 +1,9 @@
 use super::jwt;
 use crate::models::user::{EditUserSchema, QueryFilter, User};
 use crate::prelude::*;
+use crate::schemas::*;
 use axum::body::StreamBody;
-use axum::http::{StatusCode};
+use axum::http::StatusCode;
 use tokio_util::io::ReaderStream;
 
 use axum::response::IntoResponse;
@@ -47,7 +48,7 @@ async fn login_user(
 
 async fn detail_user(
     Extension(ctx): Extension<ApiContext>,
-    Query(req): Query<IdReq>,
+    Query(req): Query<IDReq>,
 ) -> ApiJsonResult<User> {
     let user = User::find_one(
         &ctx.db,
@@ -78,16 +79,10 @@ struct ListPageReq {
     page_size: Option<u64>,
 }
 
-#[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
-struct ListPageResp {
-    items: Vec<User>,
-    total: u64,
-}
-
 async fn list_user(
     Extension(ctx): Extension<ApiContext>,
     Query(req): Query<ListPageReq>,
-) -> ApiJsonResult<ListPageResp> {
+) -> ApiJsonResult<ListPageResp<User>> {
     let filter = QueryFilter {
         page_num: Some(req.page_num.unwrap_or(1)),
         page_size: Some(req.page_size.unwrap_or(10)),

@@ -1,7 +1,6 @@
 use super::role::Role;
 
 use serde::{Deserialize, Serialize};
-
 use sqlx::FromRow;
 
 #[derive(Debug, FromRow, Clone, Deserialize, Serialize, Default)]
@@ -27,7 +26,7 @@ pub struct EditUserSchema {
 
 #[derive(Default)]
 pub struct QueryFilter<'a> {
-    pub id: Option<i64>,
+    pub id: Option<u64>,
     pub name: Option<&'a str>,
     pub account_id: Option<&'a str>,
     pub hashed_passwd: Option<&'a str>,
