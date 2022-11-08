@@ -1,6 +1,7 @@
 mod jwt;
 mod role;
+mod route;
 mod schemas;
 mod user;
 
-pub use user::router;
+pub use route::router;
