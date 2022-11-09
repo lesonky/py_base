@@ -13,8 +13,9 @@ pub fn router() -> Router {
     Router::new()
         .route("/api/role/list", get(RoleAPI::list_page))
         .route("/api/role/create", post(RoleAPI::create))
+        .route("/api/role/detail", post(RoleAPI::detail))
         .route("/api/role/delete", post(RoleAPI::delete))
-        .route("/api/role/update", post(RoleAPI::update))
+        .route("/api/role/edit", post(RoleAPI::update))
         .route("/api/permission/list", get(RoleAPI::list_permisson))
 }
 

@@ -1,3 +1,4 @@
+mod avatar;
 mod jwt;
 mod role;
 mod route;

@@ -11,17 +11,29 @@ pub struct User {
     pub role: Option<Role>,
 }
 
+#[derive(Default, Serialize, Deserialize)]
 pub struct CreateUserSchema {
     pub name: String,
     pub password: String,
 }
 
 #[derive(Default, Serialize, Deserialize)]
-pub struct EditUserSchema {
-    pub id: i64,
+pub struct UpdateUserSchema {
+    pub id: u64,
     pub name: Option<String>,
     pub password: Option<String>,
     pub role_id: Option<u64>,
+}
+
+#[derive(Default, Serialize, Deserialize)]
+pub struct UserListPageSchema {
+    pub id: Option<u64>,
+    pub name: Option<String>,
+    pub account_id: Option<String>,
+    pub hashed_passwd: Option<String>,
+    pub role_id: Option<u64>,
+    pub page_num: Option<u64>,
+    pub page_size: Option<u64>,
 }
 
 #[derive(Default)]

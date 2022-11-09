@@ -84,7 +84,7 @@ impl CrudEntity for Role {
         return Ok((rows, total_count as u64));
     }
 
-    async fn delete_one(db: &DBPool, id: u64) -> Result<u64> {
+    async fn delete_one(db: &DBPool, id: Self::Id) -> Result<u64> {
         let ret = sqlx::query!(
             r#"
             delete 
