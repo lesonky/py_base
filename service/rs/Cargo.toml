@@ -16,17 +16,17 @@ dotenv = "0.15.0"
 serde = "1.0.137"
 serde_json = "1.0.81"
 tracing-subscriber = { version = "0.3.11", features = ["env-filter"] }
-sea-orm = { version = "0.9.2", features = ["sqlx-mysql", "runtime-tokio-native-tls", "debug-print"] }
 log = "0.4.17"
 env_logger = "0.9.0"
 clap = {version="3.2.18", features = ["derive"]}
 thiserror = "1.0.32"
 validator = "0.16.0"
 jsonwebtoken = "8.1.1"
-uuid = "1.1.2"
+uuid = {version="1.1.2", features=["v4"]}
 bcrypt = "0.13.0"
 chrono = "0.4.22"
-sqlx = {version="0.6.1", features=["mysql"]}
+sqlx = {version="0.6.1", features=["mysql", "chrono", "runtime-tokio-rustls", "all-types", "time"]}
 futures = "0.3.24"
 tokio-util = {version="0.7.3",features=["io"]}
 num_enum = "0.5.7"
+async-trait = "0.1.58"

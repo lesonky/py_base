@@ -7,8 +7,7 @@ use sqlx::MySqlPool as DBPool;
 
 pub use api::core::schemas;
 mod prelude {
-    pub use super::api::core::error::Result;
-    pub use super::api::core::ApiJsonResult;
-    pub use super::api::core::IntoOkJson;
+    pub use super::api::{ApiJsonResult, CrudAPI, IntoOkJson, Result};
     pub use super::ctx::ApiContext;
+    pub use super::entity::CrudEntity;
 }

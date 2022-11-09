@@ -10,6 +10,7 @@ mod files;
 mod route;
 mod user;
 pub use self::core::schemas;
+pub use self::core::{error::Result, ApiJsonResult, CrudAPI, IntoOkJson};
 
 pub async fn serve(config: Config) -> anyhow::Result<()> {
     let addr = format!("{}:{}", &config.host, &config.port);

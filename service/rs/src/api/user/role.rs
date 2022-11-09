@@ -1,14 +1,17 @@
 use super::schemas::*;
-use crate::models::user::role::{InsertRoleSchema, Role, UpdateRoleSchema};
-use crate::models::user::Permission;
 use crate::prelude::*;
 use crate::schemas::*;
 use axum::routing::{get, post};
-use axum::{Extension, Json, Router};
+use axum::Router;
+
+use crate::{
+    models::user::{CreateRoleSchema, ListRolePageSchema, Permission, Role, UpdateRoleSchema},
+    schemas::ListPageReq,
+};
 
 pub fn router() -> Router {
     Router::new()
-        .route("/api/role/list", get(RoleAPI::list))
+        .route("/api/role/list", get(RoleAPI::list_page))
         .route("/api/role/create", post(RoleAPI::create))
         .route("/api/role/delete", post(RoleAPI::delete))
         .route("/api/role/update", post(RoleAPI::update))
@@ -17,49 +20,43 @@ pub fn router() -> Router {
 
 pub struct RoleAPI {}
 
-impl RoleAPI {
-    async fn list(Extension(ctx): Extension<ApiContext>) -> ApiJsonResult<ListPageResp<Role>> {
-        let (items, total) = Role::find_all(&ctx.db).await?;
-        let resp = ListPageResp { items, total };
-        resp.into_ok_json()
-    }
+impl CrudAPI for RoleAPI {
+    type EntityModel = Role;
+    type CreateReq = CreateRoleReq;
+    type UpdateReq = UpdateRoleReq;
+    type ListPageReq = ListPageReq;
+    type DetailReq = IDReq;
+    type DeleteReq = IDReq;
+}
 
-    async fn create(
-        Extension(ctx): Extension<ApiContext>,
-        Json(req): Json<CreateRoleReq>,
-    ) -> ApiJsonResult<Role> {
-        let permissions = Permission::to_json_value(&req.permissions);
-        let data = InsertRoleSchema {
-            name: req.name,
+impl Into<CreateRoleSchema> for CreateRoleReq {
+    fn into(self) -> CreateRoleSchema {
+        let permissions = Permission::to_json_value(&self.permissions);
+        CreateRoleSchema {
+            name: self.name,
             permissions: Some(permissions),
-        };
-        let role_id = Role::insert_one(&ctx.db, data).await?;
-        let role = Role::find_by_id(&ctx.db, role_id).await?;
-        role.into_ok_json()
+        }
     }
+}
 
-    async fn delete(
-        Extension(ctx): Extension<ApiContext>,
-        Json(req): Json<IDReq>,
-    ) -> ApiJsonResult<u64> {
-        let rows_affected = Role::delete_one(&ctx.db, req.id).await?;
-        rows_affected.into_ok_json()
-    }
-
-    async fn update(
-        Extension(ctx): Extension<ApiContext>,
-        Json(req): Json<UpdateRoleReq>,
-    ) -> ApiJsonResult<u64> {
-        let permissions = req.permissions.map(|x| Permission::to_json_value(&x));
-        let data = UpdateRoleSchema {
-            id: req.id,
-            name: req.name,
+impl Into<UpdateRoleSchema> for UpdateRoleReq {
+    fn into(self) -> UpdateRoleSchema {
+        let permissions = self.permissions.map(|x| Permission::to_json_value(&x));
+        UpdateRoleSchema {
             permissions,
-        };
-        let rows_affected = Role::update_one(&ctx.db, data).await?;
-        rows_affected.into_ok_json()
+            id: self.id,
+            name: self.name,
+        }
     }
+}
 
+impl Into<ListRolePageSchema> for ListPageReq {
+    fn into(self) -> ListRolePageSchema {
+        ListRolePageSchema {}
+    }
+}
+
+impl RoleAPI {
     async fn list_permisson() -> ApiJsonResult<ListPermissionResp> {
         let permissions = Permission::all_labels();
         let resp = ListPermissionResp { permissions };

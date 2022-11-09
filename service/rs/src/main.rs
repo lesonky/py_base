@@ -1,5 +1,4 @@
 use log::info;
-use sea_orm::Database;
 use std::env;
 use std::path::PathBuf;
 
@@ -34,10 +33,6 @@ async fn main() -> anyhow::Result<()> {
     dotenv::dotenv().ok();
     env_logger::init();
     let config = parse_config_from_env();
-    let _db = Database::connect(&config.database_url)
-        .await
-        .expect("Database connection failed");
-
     api::serve(config).await?;
     Ok(())
 }

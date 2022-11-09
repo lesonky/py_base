@@ -26,7 +26,9 @@ pub struct UpdateRoleSchema {
     pub permissions: Option<JsonValue>,
 }
 
-pub struct InsertRoleSchema {
+pub struct CreateRoleSchema {
     pub name: String,
     pub permissions: Option<JsonValue>,
 }
+
+pub struct ListRolePageSchema {}
