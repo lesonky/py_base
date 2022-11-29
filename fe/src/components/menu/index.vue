@@ -42,9 +42,12 @@ export default defineComponent({
         selectedKey.value = [item.name as string];
         return;
       }
+      // console.log(item);
       // Trigger router change
       router.push({
         name: item.name,
+        query: (item?.meta?.query as any) || {},
+        params: (item?.meta?.params as any) || {},
       });
     };
     const findMenuOpenKeys = (name: string) => {
@@ -74,6 +77,7 @@ export default defineComponent({
     };
     listenerRouteChange((newRoute) => {
       const { requiresAuth, activeMenu, hideInMenu } = newRoute.meta;
+
       if (requiresAuth && (!hideInMenu || activeMenu)) {
         const menuOpenKeys = findMenuOpenKeys(
           (activeMenu || newRoute.name) as string
@@ -106,8 +110,14 @@ export default defineComponent({
                   key={element?.name}
                   v-slots={{
                     icon,
-                    title: () => h(compile(t(element?.meta?.locale || ''))),
+                    title: () =>
+                      h(
+                        compile(
+                          element?.meta?.title || t(element?.meta?.locale || '')
+                        )
+                      ),
                   }}
+                  onClick={() => setCollapse(false)}
                 >
                   {travel(element?.children)}
                 </a-sub-menu>
@@ -117,7 +127,7 @@ export default defineComponent({
                   v-slots={{ icon }}
                   onClick={() => goto(element)}
                 >
-                  {t(element?.meta?.locale || '')}
+                  {element?.meta?.title || t(element?.meta?.locale || '')}
                 </a-menu-item>
               );
             nodes.push(node as never);
@@ -153,6 +163,7 @@ export default defineComponent({
     display: flex;
     align-items: center;
   }
+
   .arco-icon {
     &:not(.arco-icon-down) {
       font-size: 18px;

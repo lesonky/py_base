@@ -205,7 +205,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, inject } from 'vue';
+import { computed, ref, inject, onBeforeMount } from 'vue';
 import { Message } from '@arco-design/web-vue';
 import { useDark, useToggle, useFullscreen } from '@vueuse/core';
 import { useAppStore, useUserStore } from '@/store';
@@ -218,6 +218,7 @@ import debug from '@/utils/env';
 import UserDialog from '@/views/userManagement/components/UserDialog.vue';
 import { UserState } from '@/store/modules/user/types';
 import { upsertUser } from '@/api/user';
+import defaultSettings from '@/config/settings.json';
 import MessageBox from '../message-box/index.vue';
 
 const appStore = useAppStore();
@@ -327,6 +328,12 @@ const updateUserState = async (user: UserState & { password?: string }) => {
     console.error(err);
   }
 };
+// 不展示主题按钮时，默认为setting中设置的主题
+onBeforeMount(() => {
+  if (appStore.themeBtn === false) {
+    toggleTheme(defaultSettings.theme === 'dark');
+  }
+});
 </script>
 
 <style scoped lang="less">

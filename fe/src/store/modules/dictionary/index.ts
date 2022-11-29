@@ -23,17 +23,19 @@ const useDictionaryStore = defineStore('dictionary', {
       // @ts-ignore-next-line
       this.$patch(partial);
     },
-    async initOption(type: dictionaryKeys, useCache = false) {
+    async initOption(type: dictionaryKeys, useCache = false, query?: any) {
       try {
-        const fun = (optionFuns as any)[type];
-        if (fun) {
+        const func = (optionFuns as typeof optionFuns)[type];
+        if (func) {
+          // 如果有query参数，则 useCache 不生效
+          useCache = useCache && !query;
           // 如果使用缓存,且存储中有值,则不用获取
           if (useCache && this[type]) {
             return;
           }
           const {
             data: { items },
-          } = await fun();
+          } = await func(query);
           this.updateOptions({ [type]: items });
         }
       } catch (err) {

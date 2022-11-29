@@ -13,6 +13,8 @@ import type {
 /**
  * FIXME: 这是一个示例
  */
-export function AIKinds() {
-  return axios.get<{ items: SelectOption[] }>('/api/ai_kind/option');
+export function AIKinds(params: any) {
+  return axios.get<{ items: SelectOption[] }>('/api/ai_kind/option', {
+    params,
+  });
 }
