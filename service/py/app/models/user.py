@@ -7,7 +7,7 @@ from sqlalchemy.orm import relation, relationship
 from app.exts import db
 from sqlalchemy import or_
 from datetime import datetime
-import hashlib
+from hashlib import md5
 from flask import current_app
 import uuid
 
@@ -50,7 +50,7 @@ class User(db.Model):
     def make_hashed_passwd(cls, passwd):
         salt = current_app.config.get("PASSWD_SALT")
         content = f'{salt}{passwd}'
-        h = hashlib.md5(content.encode())
+        h = md5(content.encode(), usedforsecurity=False).hexdigest()
         return h.hexdigest()
 
     @classmethod

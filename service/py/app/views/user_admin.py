@@ -3,29 +3,32 @@ from app.exts import db
 from flask import Blueprint, request
 from sqlalchemy import exc
 
-from flask_jwt_extended import jwt_required
-from flask_jwt_extended import current_user
+from flask_jwt_extended import jwt_required, current_user
 
 from app.models.user import User, Role
 from app.exts import jwt
 from app.core.decorator import permission_required
 from app.core.result import ok, NotFound, BadParam
 
-from marshmallow import Schema, fields
-
-from app.schemas.user import UserSchema, QueryUserSchema, UserUpdateSelfSchema, UserUpertSchema, ResetPasswordSchema
+from app.schemas.user import (
+    UserSchema,
+    QueryUserSchema,
+    UserUpdateSelfSchema,
+    UserUpertSchema,
+    ResetPasswordSchema,
+)
 from app.models.permission import Permission
 
-bp = Blueprint('user_admin', __name__)
+bp = Blueprint("user_admin", __name__)
 
 
-@bp.route('/user/list', methods=['GET'])
+@bp.route("/user/list", methods=["GET"])
 def query_users():
     args = QueryUserSchema().load(request.args)
     query = User.query.filter()
-    if args.get('phone', None):
+    if args.get("phone", None):
         query = query.filter(User.phone.ilike(f'%{args["phone"]}%'))
-    if args.get('name', None):
+    if args.get("name", None):
         query = query.filter(User.name.ilike(f'%{args["name"]}%'))
     if args.get("email", None):
         query = query.filter(User.email.ilike(f'%{args["email"]}%'))
@@ -34,23 +37,23 @@ def query_users():
     if not args.get("include_Deleted", None):
         query = query.filter(User.is_deleted == False)
     if args.get("role", None):
-        role = Role.query.filter(Role.name == args['role']).one_or_none()
+        role = Role.query.filter(Role.name == args["role"]).one_or_none()
         if not role:
             raise BadParam(f"no role found with name {args['role']}")
         query = query.filter(User.role_id == role.id)
 
-    page = query.order_by(User.id.desc()).paginate(page=args['page_num'],
-                                                   per_page=args['page_size'],
-                                                   error_out=False)
+    page = query.order_by(User.id.desc()).paginate(
+        page=args["page_num"], per_page=args["page_size"], error_out=False
+    )
     users_schema = UserSchema(many=True)
     items = users_schema.dump(page.items)
 
-    return ok({'total': page.total, 'items': items})
+    return ok({"total": page.total, "items": items})
 
 
 def get_role(args):
     role = args.pop("role", {})
-    role_name = role.pop('name', None)
+    role_name = role.pop("name", None)
     if not role_name:
         raise BadParam("role: {name: xxx} required")
     role = Role.query.filter(Role.name == role_name).one_or_none()
@@ -60,10 +63,10 @@ def get_role(args):
 
 
 def update_user(args):
-    args.pop('name')
+    args.pop("name")
     role = get_role(args)
-    account_id = args['account_id']
-    passwd = args.pop('password', None)
+    account_id = args["account_id"]
+    passwd = args.pop("password", None)
 
     user = User.query.filter(User.account_id == account_id).one_or_none()
     if not user:
@@ -79,7 +82,7 @@ def update_user(args):
 
 
 def create_user(args):
-    passwd = args.pop('password', None)
+    passwd = args.pop("password", None)
     if not passwd:
         raise BadParam("Password is required for create new user")
     role = get_role(args)
@@ -95,7 +98,7 @@ def create_user(args):
     return user
 
 
-@bp.route("/user/upsert", methods=['POST'])
+@bp.route("/user/upsert", methods=["POST"])
 @jwt_required()
 @permission_required(Permission.EditUser)
 def user_upsert():
@@ -130,10 +133,10 @@ def user_update_self():
 def user_reset_password():
     args = ResetPasswordSchema().load(request.json)
     user = current_user
-    old_hashed_passwd = User.make_hashed_passwd(args['old_password'])
+    old_hashed_passwd = User.make_hashed_passwd(args["old_password"])
     if old_hashed_passwd != user.hashed_passwd:
         raise BadParam("旧密码不正确，请重新输入")
-    user.hashed_passwd = User.make_hashed_passwd(args['new_password'])
+    user.hashed_passwd = User.make_hashed_passwd(args["new_password"])
     db.session.commit()
     user_info = UserSchema().dump(user)
     return ok(user_info)

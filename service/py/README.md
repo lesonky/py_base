@@ -101,3 +101,62 @@ sudo gpasswd -a $USER docker
 ```
 
 ## K8s 部署
+
+# 接口开发
+
+## 新增业务表
+
+1. 在`app/models/`目录下新增一个文件,并定义表结构,示例代码如下
+
+```python
+from sqlalchemy import Column, Integer, String, FLOAT, TEXT, DateTime
+from app.core.model import BaseModelMixin, TimeMixin
+from app.exts import db
+
+
+class Patient(db.Model, BaseModelMixin, TimeMixin):
+    """
+    病人信息表
+    """
+    __tablename__ = 'tb_patient'
+
+    id = Column(Integer(), primary_key=True, comment='自增主键')
+    medical_id = Column(String(256), comment='病历号')
+    name = Column(String(256), comment='姓名')
+    sex = Column(Integer(), comment='性别')
+    date = Column(DateTime, comment='出生年月')
+    note = Column(TEXT, default='', comment='描述')
+```
+
+2. 运行数据库升级脚本生成命令`pipenv run migration`
+3. 运行数据库升级命令`pipenv run dbupgrade`
+
+## 基础模型说明
+
+### TimeMixin 为模型添加 `create_at` 和 `update_at` 两个字段
+
+### BaseModelMixin 为模型添加了一些基础工具方法
+
+- schema: 通过 SQLAlchemyAutoSchema 为模型自动生成 schema 减少 schema 定义工作量
+- get_query: 获取数据库 query 对象
+- all: 查询所有记录
+- filter: 设置查询参数(注意,这里不会获取结果)
+- one_or_none: 获取数据,如果不存在则放回 None
+- one_with_id_or_404:通过 id 来获取数据,如果不存在,则报错
+- build_filter: 通过一个外部 dict 来构建查询条件
+- to_exp: 静态方法,build_filter 时,用来解析 dict 的 key,并设置为相应的条件
+- inject_foregin_schema: 设置外键关联的对象(这里是一次将所需要的外连数据全查出来,在通过 ID 对应设置到对象上,效率要高一点)
+
+### build_filter 介绍
+
+- 用来做条件的 dict 通过 key\_\_option 的形式来命名
+- key 对应 Model 的字段名称
+- option 对应查询条件的操作
+  - eq 等于(默认)
+  - gt 大于
+  - lt 小于
+  - in 包含于
+  - icontain 包含(忽略大小写)
+  - contain 包含
+  - is\_
+- 例如查询条件为 {"name\_\_icontain":"三"} 最终会编译为 class.name.ilike("%三%")

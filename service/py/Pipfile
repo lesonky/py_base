@@ -28,7 +28,17 @@ torch = "*"
 
 [dev-packages]
 pytest = "*"
-autopep8 = "*"
+black = "*"
+bandit = "*"
 
 [requires]
 python_version = "3.9"
+
+[scripts]
+dbupgrade = "bash ./scripts/dbupgrade.sh"
+dev = "bash ./scripts/development.sh"
+gadmin = "bash ./scripts/createadmin.sh"
+migration = "bash ./scripts/migration.sh"
+
+[pipenv]
+allow_prereleases = true
