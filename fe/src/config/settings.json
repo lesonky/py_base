@@ -20,5 +20,6 @@
   "searchBtn": false,
   "navbarTitle": "Web Ace",
   "loginBanner": false,
-  "canSignup": false
+  "canSignup": false,
+  "horizontalMenu": false
 }

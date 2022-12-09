@@ -10,7 +10,13 @@ import useMenuTree from './useMenuTree';
 
 export default defineComponent({
   emit: ['collapse'],
-  setup() {
+  props: {
+    mode: {
+      default: 'vertical',
+      type: String,
+    },
+  },
+  setup(props) {
     const { t } = useI18n();
     const appStore = useAppStore();
     const router = useRouter();
@@ -149,6 +155,7 @@ export default defineComponent({
         level-indent={34}
         style="height: 100%"
         onCollapse={setCollapse}
+        mode={props.mode || 'vertical'}
       >
         {renderSubMenu()}
       </a-menu>

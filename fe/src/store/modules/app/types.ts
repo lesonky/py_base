@@ -20,5 +20,6 @@ export interface AppState {
   navbarTitle: string;
   loginBanner: boolean;
   canSignup: boolean;
+  horizontalMenu: boolean;
   [key: string]: unknown;
 }

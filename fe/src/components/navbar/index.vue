@@ -20,6 +20,9 @@
         />
       </a-space>
     </div>
+    <div v-if="horizontalMenu" class="middle-side">
+      <Menu mode="horizontal"></Menu>
+    </div>
     <ul class="right-side">
       <li v-if="appStore.searchBtn">
         <a-tooltip :content="$t('settings.search')">
@@ -219,6 +222,7 @@ import UserDialog from '@/views/userManagement/components/UserDialog.vue';
 import { UserState } from '@/store/modules/user/types';
 import { upsertUser } from '@/api/user';
 import defaultSettings from '@/config/settings.json';
+import Menu from '@/components/menu/index.vue';
 import MessageBox from '../message-box/index.vue';
 
 const appStore = useAppStore();
@@ -247,6 +251,8 @@ const userState = ref<UserState>({});
 const avatar = computed(() => {
   return userStore.avatar;
 });
+
+const horizontalMenu = computed(() => appStore.horizontalMenu);
 
 const displayName = computed(() => {
   return userStore.nickName || userStore.name;
@@ -305,7 +311,7 @@ const goBackToRoot = () => {
   });
 };
 
-const toggleDrawerMenu = inject('toggleDrawerMenu');
+const toggleDrawerMenu: any = inject('toggleDrawerMenu');
 
 const editUserState = () => {
   userDialogVisible.value = true;
@@ -349,6 +355,15 @@ onBeforeMount(() => {
   display: flex;
   align-items: center;
   padding-left: 20px;
+}
+
+.middle-side {
+  flex: 1;
+
+  :deep(.arco-menu-overflow-wrap) {
+    display: flex;
+    justify-content: center;
+  }
 }
 
 .right-side {

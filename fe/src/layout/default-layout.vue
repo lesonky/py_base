@@ -5,33 +5,35 @@
     </div>
     <a-layout>
       <a-layout>
-        <a-layout-sider
-          v-if="renderMenu"
-          v-show="!hideMenu"
-          class="layout-sider"
-          breakpoint="xl"
-          :collapsed="collapsed"
-          :collapsible="true"
-          :width="menuWidth"
-          :style="{ paddingTop: navbar ? '60px' : '' }"
-          :hide-trigger="true"
-          @collapse="setCollapsed"
-        >
-          <div class="menu-wrapper">
+        <template v-if="!horizontalMenu">
+          <a-layout-sider
+            v-if="renderMenu"
+            v-show="!hideMenu"
+            class="layout-sider"
+            breakpoint="xl"
+            :collapsed="collapsed"
+            :collapsible="true"
+            :width="menuWidth"
+            :style="{ paddingTop: navbar ? '60px' : '' }"
+            :hide-trigger="true"
+            @collapse="setCollapsed"
+          >
+            <div class="menu-wrapper">
+              <Menu />
+            </div>
+          </a-layout-sider>
+          <a-drawer
+            v-if="hideMenu"
+            :visible="drawerVisible"
+            placement="left"
+            :footer="false"
+            mask-closable
+            :closable="false"
+            @cancel="drawerCancel"
+          >
             <Menu />
-          </div>
-        </a-layout-sider>
-        <a-drawer
-          v-if="hideMenu"
-          :visible="drawerVisible"
-          placement="left"
-          :footer="false"
-          mask-closable
-          :closable="false"
-          @cancel="drawerCancel"
-        >
-          <Menu />
-        </a-drawer>
+          </a-drawer>
+        </template>
         <a-layout class="layout-content" :style="paddingStyle">
           <TabBar v-if="appStore.tabBar" />
           <a-layout-content>
@@ -67,6 +69,7 @@ const navbar = computed(() => appStore.navbar);
 const renderMenu = computed(() => appStore.menu);
 const hideMenu = computed(() => appStore.hideMenu);
 const footer = computed(() => appStore.footer);
+const horizontalMenu = computed(() => appStore.horizontalMenu);
 const menuWidth = computed(() => {
   return appStore.menuCollapse ? 48 : appStore.menuWidth;
 });
@@ -74,14 +77,19 @@ const collapsed = computed(() => {
   return appStore.menuCollapse;
 });
 const paddingStyle = computed(() => {
-  const paddingLeft =
-    renderMenu.value && !hideMenu.value
-      ? { paddingLeft: `${menuWidth.value}px` }
-      : {};
+  // eslint-disable-next-line no-nested-ternary
+  const paddingLeft = horizontalMenu.value
+    ? { paddingLeft: '0px' }
+    : renderMenu.value && !hideMenu.value
+    ? { paddingLeft: `${menuWidth.value}px` }
+    : {};
   const paddingTop = navbar.value ? { paddingTop: navbarHeight } : {};
   return { ...paddingLeft, ...paddingTop };
 });
-const setCollapsed = (val: boolean) => {
+const setCollapsed = (val: boolean, type?: 'clickTrigger' | 'responsive') => {
+  if (type === 'responsive') {
+    return;
+  }
   appStore.updateSettings({ menuCollapse: val });
 };
 watch(
@@ -125,6 +133,7 @@ provide('toggleDrawerMenu', () => {
   z-index: 99;
   height: 100%;
   transition: all 0.2s cubic-bezier(0.34, 0.69, 0.1, 1);
+
   &::after {
     position: absolute;
     top: 0;
@@ -145,6 +154,7 @@ provide('toggleDrawerMenu', () => {
   height: 100%;
   overflow: auto;
   overflow-x: hidden;
+
   :deep(.arco-menu) {
     ::-webkit-scrollbar {
       width: 12px;
@@ -152,10 +162,10 @@ provide('toggleDrawerMenu', () => {
     }
 
     ::-webkit-scrollbar-thumb {
-      border: 4px solid transparent;
-      background-clip: padding-box;
-      border-radius: 7px;
       background-color: var(--color-text-4);
+      background-clip: padding-box;
+      border: 4px solid transparent;
+      border-radius: 7px;
     }
 
     ::-webkit-scrollbar-thumb:hover {
