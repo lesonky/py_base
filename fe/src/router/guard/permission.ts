@@ -35,7 +35,7 @@ export default function setupPermissionGuard(router: Router) {
           next({
             name: 'login',
             query: {
-              redirect: to.name,
+              redirect: to.path,
               ...to.query,
             } as LocationQueryRaw,
           });
@@ -51,7 +51,7 @@ export default function setupPermissionGuard(router: Router) {
       next({
         name: 'login',
         query: {
-          redirect: to.name,
+          redirect: to.path,
           ...to.query,
         } as LocationQueryRaw,
       });

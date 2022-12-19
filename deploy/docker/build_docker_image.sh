@@ -9,8 +9,8 @@ tag=$(cat $SCRIPT_DIR/build_version_hash)
 echo "the tag is $tag"
 
 
-DOCKER_IMAGE_WEB_API="webace_base_api"
-DOCKER_IMAGE_FE="webace_base_fe"
+# DOCKER_IMAGE_WEB_API="webace_base_api"
+# DOCKER_IMAGE_FE="webace_base_fe"
 
 docker build -f $PROJECT_DIR/fe/Dockerfile -t $DOCKER_IMAGE_FE:$tag $PROJECT_DIR/fe
 docker build -f $PROJECT_DIR/service/py/Dockerfile -t $DOCKER_IMAGE_WEB_API:$tag $PROJECT_DIR/service/py/

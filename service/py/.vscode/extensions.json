@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "oderwat.indent-rainbow",
+    "magicstack.magicpython",
+    "ms-python.vscode-pylance",
+    "donjayamanne.python-environment-manager",
+    "ms-python.python"
+  ]
+}
