@@ -20,5 +20,6 @@
     "jsx": true,
     "tsx": true,
     "windicss": true
-  }
+  },
+  "typescript.tsdk": "node_modules/typescript/lib"
 }
